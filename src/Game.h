@@ -1,6 +1,6 @@
 
-#ifndef PLATFORMER_GAME_H
-#define PLATFORMER_GAME_H
+#ifndef CRITTERSCROSSING_GAME_H
+#define CRITTERSCROSSING_GAME_H
 
 #include <SFML/Graphics.hpp>
 
@@ -13,13 +13,42 @@ class Game
   void update(float dt);
   void render();
   void mouseClicked(sf::Event event);
+  void mouseReleased(sf::Event event);
   void keyPressed(sf::Event event);
+  void keyReleased(sf::Event event);
 
  private:
-  sf::RenderWindow& window;
-  sf::Sprite ball;
-  sf::Texture ball_texture;
+	 void createText(sf::Text& text_name, std::string text, int size, sf::Color colour);
+	 void changeText(sf::Text& text_name, std::string new_text, int temp_number);
+	 void loadAnimals();
+	 void loadPassports();
+	 void newAnimal();
+	 void dragSprite(sf::Sprite* sprite);
+	 void dragOffset(sf::Sprite* sprite);
 
+  sf::RenderWindow& window;
+  // Game States
+  enum game_state {MENU,GAMEPLAY};
+  game_state current_state;
+  bool paused = false;
+  bool passport_accepted = false;
+  bool passport_rejected = false;
+  bool should_accept = false;
+  bool started_dragging = false;
+  // Text
+  sf::Font font;
+  sf::Text m_title_txt;
+  sf::Text p_pause_text;
+  // Sprites
+  sf::Sprite background;
+  sf::Texture background_texture;
+  sf::RectangleShape pause_rect;
+  sf::Sprite* character;
+  sf::Sprite* passport;
+  sf::Texture* animals = new sf::Texture[3];
+  sf::Texture* passports = new sf::Texture[3];
+  sf::Sprite* dragged = nullptr;
+  sf::Vector2f drag_offset;
 };
 
-#endif // PLATFORMER_GAME_H
+#endif // CRITTERSCROSSING_GAME_H
