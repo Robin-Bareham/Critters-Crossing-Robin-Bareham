@@ -102,6 +102,12 @@ void Game::mouseReleased(sf::Event event)
 {
 	dragged = nullptr;
 	started_dragging = false;
+  //get the click position
+  sf::Vector2i click = sf::Mouse::getPosition(window);
+}
+void Game::mouseReleased(sf::Event event)
+{
+
 }
 
 void Game::keyPressed(sf::Event event)
@@ -200,6 +206,7 @@ void Game::dragOffset(sf::Sprite* sprite)
 	}
 
 }
+
 
 void Game::createText(sf::Text& text_name, std::string text, int size, sf::Color colour)
 {
