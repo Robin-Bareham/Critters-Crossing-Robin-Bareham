@@ -14,6 +14,7 @@ Game::~Game()
 	delete passport;
 	delete[] animals;
 	delete[] passports;
+
 }
 
 bool Game::init()
@@ -41,11 +42,24 @@ bool Game::init()
 
 	character = new sf::Sprite;
 	passport = new sf::Sprite;
-
 	loadAnimals();
 	loadPassports();
-	
 	newAnimal();
+	// STAMPS n BUTTONS //
+	reject_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/reject button.png");
+	reject_btn.getSprite()->setPosition(window.getSize().x - reject_btn.getSprite()->getGlobalBounds().width - 20,
+		window.getSize().y - reject_btn.getSprite()->getGlobalBounds().height - 20);
+	accept_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/accept button.png");
+	accept_btn.getSprite()->setPosition(window.getSize().x - accept_btn.getSprite()->getGlobalBounds().width - 20,
+		window.getSize().y - (accept_btn.getSprite()->getGlobalBounds().height*2) - 40);
+
+	reject_stamp.initaliseSprite("../Data/Images/Critter Crossing Customs/reject.png");
+	accept_stamp.initaliseSprite("../Data/Images/Critter Crossing Customs/accept.png");
+
+	reject_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width/2 - reject_stamp.getSprite()->getGlobalBounds().width/2,
+		passport->getPosition().y + passport->getGlobalBounds().height/4 - reject_stamp.getSprite()->getGlobalBounds().height/2);
+	accept_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - accept_stamp.getSprite()->getGlobalBounds().width / 2,
+		passport->getPosition().y + passport->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
 
   return true;
 }
@@ -56,7 +70,7 @@ void Game::update(float dt)
 	{
 		dragOffset(dragged);
 	}
-	dragSprite(dragged);
+	dragSprite(dragged,passport_status);
 }
 
 void Game::render()
@@ -72,6 +86,18 @@ void Game::render()
 		window.draw(background);
 		window.draw(*character);
 		window.draw(*passport);
+
+		window.draw(*accept_btn.getSprite());
+		window.draw(*reject_btn.getSprite());
+
+		if(passport_rejected)
+		{
+			window.draw(*reject_stamp.getSprite());
+;		}
+		else if(passport_accepted)
+		{
+			window.draw(*accept_stamp.getSprite());
+		}
 
 		if(paused)
 		{
@@ -95,6 +121,18 @@ void Game::mouseClicked(sf::Event event)
 		  dragged = passport;
 		  started_dragging = true;
 	  }
+	  else if (accept_btn.getSprite()->getGlobalBounds().contains(clickf))
+	  {
+		  passport_accepted = true;
+		  passport_rejected = false;
+		  passport_status = accept_stamp.getSprite();
+	  }
+	  else if (reject_btn.getSprite()->getGlobalBounds().contains(clickf))
+	  {
+		  passport_rejected = true;
+		  passport_accepted = false;
+		  passport_status = reject_stamp.getSprite();
+	  }
   }
  
 }
@@ -104,10 +142,11 @@ void Game::mouseReleased(sf::Event event)
 	started_dragging = false;
   //get the click position
   sf::Vector2i click = sf::Mouse::getPosition(window);
-}
-void Game::mouseReleased(sf::Event event)
-{
-
+  // Updates Stamp positions
+  reject_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - reject_stamp.getSprite()->getGlobalBounds().width / 2,
+	  passport->getPosition().y + passport->getGlobalBounds().height / 4 - reject_stamp.getSprite()->getGlobalBounds().height / 2);
+  accept_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - accept_stamp.getSprite()->getGlobalBounds().width / 2,
+	  passport->getPosition().y + passport->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
 }
 
 void Game::keyPressed(sf::Event event)
@@ -182,7 +221,7 @@ void Game::newAnimal()
 	passport->setPosition(window.getSize().x/2,window.getSize().y/3);
 }
 
-void Game::dragSprite(sf::Sprite* sprite)
+void Game::dragSprite(sf::Sprite* sprite, sf::Sprite* stamp_sprite)
 {
 	if(sprite != nullptr)
 	{
@@ -190,6 +229,11 @@ void Game::dragSprite(sf::Sprite* sprite)
 		sf::Vector2f mouse_positionf = static_cast<sf::Vector2f>(mouse_position);
 		sf::Vector2f drag_position = mouse_positionf - drag_offset;// (Makes it so it drags from any pos of the mouse on sprite
 		sprite->setPosition(drag_position.x, drag_position.y);
+		if(stamp_sprite != nullptr)
+		{
+			stamp_sprite->setPosition(sprite->getPosition().x + sprite->getGlobalBounds().width / 2 - stamp_sprite->getGlobalBounds().width / 2,
+				sprite->getPosition().y + sprite->getGlobalBounds().height / 4 - stamp_sprite->getGlobalBounds().height / 2);
+		}
 	}
 }
 

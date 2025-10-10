@@ -3,6 +3,7 @@
 #define CRITTERSCROSSING_GAME_H
 
 #include <SFML/Graphics.hpp>
+#include "GameObject.h"
 
 class Game
 {
@@ -23,7 +24,7 @@ class Game
 	 void loadAnimals();
 	 void loadPassports();
 	 void newAnimal();
-	 void dragSprite(sf::Sprite* sprite);
+	 void dragSprite(sf::Sprite* sprite, sf::Sprite* stamp_sprite);
 	 void dragOffset(sf::Sprite* sprite);
 
   sf::RenderWindow& window;
@@ -43,11 +44,16 @@ class Game
   sf::Sprite background;
   sf::Texture background_texture;
   sf::RectangleShape pause_rect;
+  GameObject accept_btn;
+  GameObject reject_btn;
+  GameObject reject_stamp;
+  GameObject accept_stamp;
   sf::Sprite* character;
   sf::Sprite* passport;
   sf::Texture* animals = new sf::Texture[3];
   sf::Texture* passports = new sf::Texture[3];
   sf::Sprite* dragged = nullptr;
+  sf::Sprite* passport_status = nullptr;
   sf::Vector2f drag_offset;
 };
 

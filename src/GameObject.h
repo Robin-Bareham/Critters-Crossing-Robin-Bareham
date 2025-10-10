@@ -11,6 +11,7 @@ public:
 	~GameObject();
 	bool initaliseSprite(std::string filename);
 	sf::Sprite* getSprite();
+	void setSpritePos(float temp_x, float temp_y);
 
 protected:
 	sf::Sprite sprite;
