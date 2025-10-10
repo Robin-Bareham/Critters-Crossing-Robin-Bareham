@@ -26,24 +26,33 @@ class Game
 	 void newAnimal();
 	 void dragSprite(sf::Sprite* sprite, sf::Sprite* stamp_sprite);
 	 void dragOffset(sf::Sprite* sprite);
+	 void updateStampPos();
+	 bool collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mouse);
 
   sf::RenderWindow& window;
   // Game States
-  enum game_state {MENU,GAMEPLAY};
+  enum game_state {MENU,GAMEPLAY,END};
   game_state current_state;
   bool paused = false;
   bool passport_accepted = false;
   bool passport_rejected = false;
   bool should_accept = false;
   bool started_dragging = false;
+  int passports_right = 0;
+  int passports_wrong = 0;
+  int lives = 3;
   // Text
   sf::Font font;
   sf::Text m_title_txt;
-  sf::Text p_pause_text;
+  sf::Text p_pause_txt;
+  sf::Text g_lives_txt;
+  sf::Text e_end_txt;
+  sf::Text e_final_score_txt;
   // Sprites
   sf::Sprite background;
   sf::Texture background_texture;
   sf::RectangleShape pause_rect;
+  sf::RectangleShape return_rect;
   GameObject accept_btn;
   GameObject reject_btn;
   GameObject reject_stamp;
