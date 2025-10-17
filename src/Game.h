@@ -28,9 +28,10 @@ class Game
 	 void dragSprite(sf::Sprite* sprite, sf::Sprite* stamp_sprite);
 	 void dragOffset(sf::Sprite* sprite);
 	 void updateBtns(int start, int end);
-	 void updateStampPos();
 	 void setAllBtnsVisible(bool state);
+	 void updateStampPos();
 	 bool collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mouse);
+	 void resetGame();
 
   sf::RenderWindow& window;
   // Game States
@@ -49,10 +50,11 @@ class Game
   sf::Font font;
   sf::Text m_title_txt;
   sf::Text m_instructions_txt;
-  sf::Text p_pause_txt;
   sf::Text g_lives_txt;
   sf::Text e_end_txt;
   sf::Text e_final_score_txt;
+  sf::Text i_mouse_txt;
+  sf::Text i_keyboard_txt;
   // Sprites
   sf::Sprite background;
   sf::Texture background_texture;

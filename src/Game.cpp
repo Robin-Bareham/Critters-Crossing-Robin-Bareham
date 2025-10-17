@@ -31,11 +31,16 @@ bool Game::init()
 	// MENU TEXT //
 	createText(m_title_txt, "Critter's Crossing", 100, sf::Color::White);
 	m_title_txt.setPosition(window.getSize().x/2-m_title_txt.getGlobalBounds().width/2, 20);
-	// PAUSE TEXT //
-	createText(p_pause_txt, "PAUSED", 100, sf::Color::White);
-	p_pause_txt.setPosition(window.getSize().x / 2 - p_pause_txt.getGlobalBounds().width / 2, 20);
-	createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
+	// Instructions TEXT //
+	createText(i_mouse_txt, "Click and drag passports with the mouse \n                into the blue box upon \n               accepting or rejecting it.",50,sf::Color::White);
+	i_mouse_txt.setPosition(40,0);  
+	createText(i_keyboard_txt, "Which key activates which buttons:"
+		"\nENTER - Start/Main Menu"
+		"\nESC - Return/Quit/Pause/Play Again."
+		"\nI - Instructions", 40, sf::Color::White);
+	i_keyboard_txt.setPosition(40,i_mouse_txt.getGlobalBounds().height + 40);
 	// GAME TEXT //
+	createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
 	g_lives_txt.setPosition(5, 5);
 	createText(e_end_txt, "You got too many stamps incorrect.", 60, sf::Color::White);
 	// END SCREEN TEXT //
@@ -139,6 +144,8 @@ void Game::render()
 		window.draw(*buttons[5].getSprite());
 		break;
 	case INSTRUCTIONS:
+		window.draw(i_mouse_txt);
+		window.draw(i_keyboard_txt);
 		window.draw(*buttons[3].getSprite());
 		break;
 	} 
@@ -159,6 +166,7 @@ void Game::mouseClicked(sf::Event event)
 			{
 				current_state = GAMEPLAY;
 				updateBtns(2,5);
+				resetGame();
 			}
 			//If quit button is pressed
 			else if(buttons[1].getSprite()->getGlobalBounds().contains(clickf))
@@ -253,6 +261,7 @@ void Game::mouseClicked(sf::Event event)
 			{
 				current_state = GAMEPLAY;
 				updateBtns(2, 5);
+				resetGame();
 			}
 		}
 		break;
@@ -338,6 +347,7 @@ void Game::keyPressed(sf::Event event)
 		{
 			current_state = GAMEPLAY;
 			updateBtns(2, 5);
+			resetGame();
 		}
 		if(event.key.code == sf::Keyboard::Escape)
 		{
@@ -375,16 +385,28 @@ void Game::keyPressed(sf::Event event)
 		{
 			paused = true;
 		}
+		if(event.key.code == sf::Keyboard::Enter)
+		{
+			current_state = MENU;
+			updateBtns(0, 3);
+		}
 		if (event.key.code == sf::Keyboard::R)
 		{
 			newAnimal();
 		}
 		break;
 	case END:
+		if (event.key.code == sf::Keyboard::Escape)
+		{
+			current_state = GAMEPLAY;
+			updateBtns(2,5);
+			resetGame();
+			break;
+		}
 		if (event.key.code == sf::Keyboard::Enter)
 		{
 			current_state = MENU;
-			updateBtns(2, 5);
+			updateBtns(0, 3);
 			break;
 		}
 		break;
@@ -412,6 +434,7 @@ void Game::keyReleased(sf::Event event)
 }
 
 // Private Functions
+
 
 void Game::newAnimal()
 {
@@ -482,6 +505,19 @@ bool Game::collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mou
 	{
 		return false;
 	}
+}
+
+void Game::resetGame()
+{
+	paused = false;
+	passport_accepted = false;
+	passport_rejected = false;
+	should_accept = false;
+	started_dragging = false;
+	passports_right = 0;
+	passports_wrong = 0;
+	lives = 3;
+	changeText(g_lives_txt, "Lives: ", lives);
 }
 
 void Game::createText(sf::Text& text_name, std::string text, int size, sf::Color colour)
