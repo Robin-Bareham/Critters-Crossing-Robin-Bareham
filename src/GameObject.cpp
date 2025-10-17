@@ -23,3 +23,13 @@ void GameObject::setSpritePos(float temp_x, float temp_y)
 {
 	sprite.setPosition(temp_x,temp_y);
 }
+
+void GameObject::setVisible(bool value)
+{
+	is_visible = value;
+}
+
+bool GameObject::getVisible()
+{
+	return is_visible;
+}

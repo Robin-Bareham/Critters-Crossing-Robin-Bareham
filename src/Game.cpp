@@ -14,6 +14,7 @@ Game::~Game()
 	delete passport;
 	delete[] animals;
 	delete[] passports;
+	delete[] buttons;
 
 }
 
@@ -30,11 +31,14 @@ bool Game::init()
 	// MENU TEXT //
 	createText(m_title_txt, "Critter's Crossing", 100, sf::Color::White);
 	m_title_txt.setPosition(window.getSize().x/2-m_title_txt.getGlobalBounds().width/2, 20);
+	// PAUSE TEXT //
 	createText(p_pause_txt, "PAUSED", 100, sf::Color::White);
 	p_pause_txt.setPosition(window.getSize().x / 2 - p_pause_txt.getGlobalBounds().width / 2, 20);
 	createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
+	// GAME TEXT //
 	g_lives_txt.setPosition(5, 5);
 	createText(e_end_txt, "You got too many stamps incorrect.", 60, sf::Color::White);
+	// END SCREEN TEXT //
 	e_end_txt.setPosition(window.getSize().x/2 - e_end_txt.getGlobalBounds().width/2, 20);
 	createText(e_final_score_txt, "Correct Stamps: 0", 100, sf::Color::White);
 	e_final_score_txt.setPosition(window.getSize().x / 2 - e_final_score_txt.getGlobalBounds().width / 2, window.getSize().y / 2 - e_final_score_txt.getGlobalBounds().height / 2);
@@ -54,6 +58,7 @@ bool Game::init()
 	loadAnimals();
 	loadPassports();
 	newAnimal();
+	loadButtons();
 	// STAMPS n BUTTONS //
 	reject_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/reject button.png");
 	reject_btn.getSprite()->setPosition(window.getSize().x - reject_btn.getSprite()->getGlobalBounds().width - 20,
@@ -93,6 +98,9 @@ void Game::render()
 	case MENU:
 		//std::cout << "MENU STATE\n";
 		window.draw(m_title_txt);
+		window.draw(*buttons[0].getSprite());
+		window.draw(*buttons[1].getSprite());
+		window.draw(*buttons[2].getSprite());
 		break;
 	case GAMEPLAY:
 		//std::cout << "GAMEPLAY STATE\n";
@@ -116,13 +124,18 @@ void Game::render()
 		if(paused)
 		{
 			window.draw(pause_rect);
-			window.draw(p_pause_txt);
+			//window.draw(p_pause_txt);
+			window.draw(*buttons[2].getSprite());
+			window.draw(*buttons[3].getSprite());
+			window.draw(*buttons[4].getSprite());
 		}
 		window.draw(g_lives_txt);
 		break;
 	case END:
 		window.draw(e_end_txt);
 		window.draw(e_final_score_txt);
+		window.draw(*buttons[4].getSprite());
+		window.draw(*buttons[5].getSprite());
 		break;
 	} 
 }
@@ -197,6 +210,7 @@ void Game::mouseReleased(sf::Event event)
 						if(lives <= 0)
 						{
 							current_state = END;
+							updateBtns(4,6);
 							changeText(e_final_score_txt, "Correct Stamps: ", passports_right);
 						}
 					}
@@ -239,12 +253,14 @@ void Game::keyPressed(sf::Event event)
 			{
 				paused = false;
 				current_state = MENU;
+				updateBtns(0,3);
 				break;
 			}
 		}
 		if (event.key.code == sf::Keyboard::Escape)
 		{
 			paused = true;
+			updateBtns(2,5);
 		}
 		if (event.key.code == sf::Keyboard::R)
 		{
@@ -255,6 +271,7 @@ void Game::keyPressed(sf::Event event)
 		if (event.key.code == sf::Keyboard::Enter)
 		{
 			current_state = MENU;
+			updateBtns(2, 5);
 			break;
 		}
 		break;
@@ -355,6 +372,14 @@ void Game::changeText(sf::Text& text_name, std::string new_text, int temp_number
 	text_name.setString(new_text);
 }
 
+void Game::updateStampPos()
+{
+	reject_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - reject_stamp.getSprite()->getGlobalBounds().width / 2,
+		passport->getPosition().y + passport->getGlobalBounds().height / 4 - reject_stamp.getSprite()->getGlobalBounds().height / 2);
+	accept_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - accept_stamp.getSprite()->getGlobalBounds().width / 2,
+		passport->getPosition().y + passport->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
+}
+
 void Game::loadAnimals()
 {
 	if(!animals[0].loadFromFile("../Data/Images/Critter Crossing Customs/elephant.png"))
@@ -387,10 +412,59 @@ void Game::loadPassports()
 	}
 }
 
-void Game::updateStampPos()
+void Game::loadButtons()
 {
-	reject_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - reject_stamp.getSprite()->getGlobalBounds().width / 2,
-		passport->getPosition().y + passport->getGlobalBounds().height / 4 - reject_stamp.getSprite()->getGlobalBounds().height / 2);
-	accept_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - accept_stamp.getSprite()->getGlobalBounds().width / 2,
-		passport->getPosition().y + passport->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
+	buttons[0].initaliseSprite("../Data/Images/Buttons/btn_start.png");
+	buttons[1].initaliseSprite("../Data/Images/Buttons/btn_quit.png");
+	buttons[2].initaliseSprite("../Data/Images/Buttons/btn_instructions.png");
+	buttons[3].initaliseSprite("../Data/Images/Buttons/btn_return.png");
+	buttons[4].initaliseSprite("../Data/Images/Buttons/btn_mainmenu.png");
+	buttons[5].initaliseSprite("../Data/Images/Buttons/btn_playagain.png");
+	setAllBtnsVisible(false);
+	buttons[0].getSprite()->setPosition(40,
+		window.getSize().y - buttons[0].getSprite()->getGlobalBounds().height - 40);
+	buttons[1].getSprite()->setPosition(window.getSize().x - buttons[1].getSprite()->getGlobalBounds().width - 40,
+		window.getSize().y - buttons[1].getSprite()->getGlobalBounds().height - 40);
+	buttons[2].getSprite()->setPosition(window.getSize().x / 2 - buttons[2].getSprite()->getGlobalBounds().width / 2,
+		window.getSize().y - buttons[2].getSprite()->getGlobalBounds().height - 40);
+	buttons[3].getSprite()->setPosition(window.getSize().x / 2 - buttons[3].getSprite()->getGlobalBounds().width / 2, 40);
+	buttons[4].getSprite()->setPosition(window.getSize().x / 2 - buttons[4].getSprite()->getGlobalBounds().width / 2,
+		window.getSize().y - buttons[4].getSprite()->getGlobalBounds().height - 40);
+	buttons[5].getSprite()->setPosition(window.getSize().x / 2 - buttons[5].getSprite()->getGlobalBounds().width - 5,
+		window.getSize().y - buttons[5].getSprite()->getGlobalBounds().height - 40);
+	updateBtns(0,3);
+}
+
+void Game::updateBtns(int start, int end)
+{
+	setAllBtnsVisible(false);
+	for (int i = start; i < end; i++)
+	{
+		buttons[i].setVisible(true);
+	}
+	switch(current_state)
+	{
+		case MENU:
+			buttons[2].getSprite()->setPosition(window.getSize().x / 2 - buttons[2].getSprite()->getGlobalBounds().width / 2,
+			window.getSize().y - buttons[2].getSprite()->getGlobalBounds().height - 40);
+		break;
+		case GAMEPLAY:
+			buttons[2].getSprite()->setPosition(window.getSize().x / 2 - buttons[2].getSprite()->getGlobalBounds().width / 2,
+				window.getSize().y / 2 - buttons[2].getSprite()->getGlobalBounds().height / 2);
+			buttons[4].getSprite()->setPosition(window.getSize().x / 2 - buttons[4].getSprite()->getGlobalBounds().width / 2,
+				window.getSize().y - buttons[4].getSprite()->getGlobalBounds().height - 40);
+			break;
+		case END:
+			buttons[4].getSprite()->setPosition(window.getSize().x / 2 + 5,
+				window.getSize().y - buttons[4].getSprite()->getGlobalBounds().height - 40);
+			break;
+	}
+}
+
+void Game::setAllBtnsVisible(bool value)
+{
+	for (int i = 0; i < 6; i++)
+	{
+		buttons[i].setVisible(value);
+	}
 }

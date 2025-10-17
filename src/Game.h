@@ -23,10 +23,13 @@ class Game
 	 void changeText(sf::Text& text_name, std::string new_text, int temp_number);
 	 void loadAnimals();
 	 void loadPassports();
+	 void loadButtons();
 	 void newAnimal();
 	 void dragSprite(sf::Sprite* sprite, sf::Sprite* stamp_sprite);
 	 void dragOffset(sf::Sprite* sprite);
+	 void updateBtns(int start, int end);
 	 void updateStampPos();
+	 void setAllBtnsVisible(bool state);
 	 bool collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mouse);
 
   sf::RenderWindow& window;
@@ -44,6 +47,7 @@ class Game
   // Text
   sf::Font font;
   sf::Text m_title_txt;
+  sf::Text m_instructions_txt;
   sf::Text p_pause_txt;
   sf::Text g_lives_txt;
   sf::Text e_end_txt;
@@ -57,6 +61,7 @@ class Game
   GameObject reject_btn;
   GameObject reject_stamp;
   GameObject accept_stamp;
+  GameObject* buttons = new GameObject[6];
   sf::Sprite* character;
   sf::Sprite* passport;
   sf::Texture* animals = new sf::Texture[3];
