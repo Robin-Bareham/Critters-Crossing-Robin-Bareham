@@ -34,8 +34,9 @@ class Game
 
   sf::RenderWindow& window;
   // Game States
-  enum game_state {MENU,GAMEPLAY,END};
+  enum game_state {MENU,GAMEPLAY,END,INSTRUCTIONS};
   game_state current_state;
+  game_state previous_state;
   bool paused = false;
   bool passport_accepted = false;
   bool passport_rejected = false;
@@ -61,7 +62,7 @@ class Game
   GameObject reject_btn;
   GameObject reject_stamp;
   GameObject accept_stamp;
-  GameObject* buttons = new GameObject[6];
+  GameObject* buttons = new GameObject[7];
   sf::Sprite* character;
   sf::Sprite* passport;
   sf::Texture* animals = new sf::Texture[3];
