@@ -14,12 +14,14 @@ Game::~Game()
 	delete passport;
 	delete[] animals;
 	delete[] passports;
-	delete[] buttons;
+	//delete[] buttons;
 
 }
 
 bool Game::init()
 {
+	// Creates the spaces for the pointers in the vector
+	buttonsNew.assign(7, std::make_shared<GameObject>());
 
 	current_state = MENU;
 
@@ -47,6 +49,8 @@ bool Game::init()
 	e_end_txt.setPosition(window.getSize().x/2 - e_end_txt.getGlobalBounds().width/2, 20);
 	createText(e_final_score_txt, "Correct Stamps: 0", 100, sf::Color::White);
 	e_final_score_txt.setPosition(window.getSize().x / 2 - e_final_score_txt.getGlobalBounds().width / 2, window.getSize().y / 2 - e_final_score_txt.getGlobalBounds().height / 2);
+	
+	
 	// SPRITES //
 	if(!background_texture.loadFromFile("../Data/Images/WhackaMole Worksheet/background.png"))
 	{
@@ -103,9 +107,9 @@ void Game::render()
 	case MENU:
 		//std::cout << "MENU STATE\n";
 		window.draw(m_title_txt);
-		window.draw(*buttons[0].getSprite());
-		window.draw(*buttons[1].getSprite());
-		window.draw(*buttons[2].getSprite());
+		window.draw(*buttonsNew[0].get()->getSprite());
+		window.draw(*buttonsNew[1].get()->getSprite());
+		window.draw(*buttonsNew[2].get()->getSprite());
 		break;
 	case GAMEPLAY:
 		//std::cout << "GAMEPLAY STATE\n";
@@ -125,28 +129,28 @@ void Game::render()
 		{
 			window.draw(*accept_stamp.getSprite());
 		}
-		window.draw(*buttons[6].getSprite());
+		window.draw(*buttonsNew[6].get()->getSprite());
 
 		if(paused)
 		{
 			window.draw(pause_rect);
 			//window.draw(p_pause_txt);
-			window.draw(*buttons[2].getSprite());
-			window.draw(*buttons[3].getSprite());
-			window.draw(*buttons[4].getSprite());
+			window.draw(*buttonsNew[2].get()->getSprite());
+			window.draw(*buttonsNew[3].get()->getSprite());
+			window.draw(*buttonsNew[4].get()->getSprite());
 		}
 		window.draw(g_lives_txt);
 		break;
 	case END:
 		window.draw(e_end_txt);
 		window.draw(e_final_score_txt);
-		window.draw(*buttons[4].getSprite());
-		window.draw(*buttons[5].getSprite());
+		window.draw(*buttonsNew[4].get()->getSprite());
+		window.draw(*buttonsNew[5].get()->getSprite());
 		break;
 	case INSTRUCTIONS:
 		window.draw(i_mouse_txt);
 		window.draw(i_keyboard_txt);
-		window.draw(*buttons[3].getSprite());
+		window.draw(*buttonsNew[3].get()->getSprite());
 		break;
 	} 
 }
@@ -162,19 +166,19 @@ void Game::mouseClicked(sf::Event event)
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 			
 			//If start button is pressed
-			if(buttons[0].getSprite()->getGlobalBounds().contains(clickf))
+			if(buttonsNew[0].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				current_state = GAMEPLAY;
 				updateBtns(2,5);
 				resetGame();
 			}
 			//If quit button is pressed
-			else if(buttons[1].getSprite()->getGlobalBounds().contains(clickf))
+			else if(buttonsNew[1].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				window.close();
 			}
 			//If instructions button is pressed
-			else if(buttons[2].getSprite()->getGlobalBounds().contains(clickf))
+			else if(buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				previous_state = current_state;
 				current_state = INSTRUCTIONS;
@@ -209,7 +213,7 @@ void Game::mouseClicked(sf::Event event)
 					passport_status = reject_stamp.getSprite();
 				}
 
-				if (buttons[6].getSprite()->getGlobalBounds().contains(clickf))
+				if (buttonsNew[6].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					paused = true;
 				}
@@ -223,19 +227,19 @@ void Game::mouseClicked(sf::Event event)
 				sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
 				//If start button is pressed
-				if (buttons[3].getSprite()->getGlobalBounds().contains(clickf))
+				if (buttonsNew[3].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					paused = false;
 				}
 				//If quit button is pressed
-				else if (buttons[4].getSprite()->getGlobalBounds().contains(clickf))
+				else if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					paused = false;
 					current_state = MENU;
 					updateBtns(0,3);
 				}
 				//If instructions button is pressed
-				else if (buttons[2].getSprite()->getGlobalBounds().contains(clickf))
+				else if (buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					previous_state = current_state;
 					current_state = INSTRUCTIONS;
@@ -251,13 +255,13 @@ void Game::mouseClicked(sf::Event event)
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
 			//If quit button is pressed
-			if (buttons[4].getSprite()->getGlobalBounds().contains(clickf))
+			if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				current_state = MENU;
 				updateBtns(0, 3);
 			}
 			//If instructions button is pressed
-			else if (buttons[5].getSprite()->getGlobalBounds().contains(clickf))
+			else if (buttonsNew[5].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				current_state = GAMEPLAY;
 				updateBtns(2, 5);
@@ -272,7 +276,7 @@ void Game::mouseClicked(sf::Event event)
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
 			//If quit button is pressed
-			if (buttons[3].getSprite()->getGlobalBounds().contains(clickf))
+			if (buttonsNew[3].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				if(previous_state == GAMEPLAY)
 				{
@@ -579,27 +583,36 @@ void Game::loadPassports()
 
 void Game::loadButtons()
 {
-	buttons[0].initaliseSprite("../Data/Images/Buttons/btn_start.png");
-	buttons[1].initaliseSprite("../Data/Images/Buttons/btn_quit.png");
-	buttons[2].initaliseSprite("../Data/Images/Buttons/btn_instructions.png");
-	buttons[3].initaliseSprite("../Data/Images/Buttons/btn_return.png");
-	buttons[4].initaliseSprite("../Data/Images/Buttons/btn_mainmenu.png");
-	buttons[5].initaliseSprite("../Data/Images/Buttons/btn_playagain.png");
-	buttons[6].initaliseSprite("../Data/Images/Buttons/btn_pause.png");
+	//btn_files.insert("btn_pause.png");
+	/*
+	buttonsNew.emplace_back(temp_btn.initaliseSprite("../Data/Images/Buttons/btn_start.png"));
+	buttonsNew.emplace_back();
+	buttonsNew.emplace_back();
+	buttonsNew.emplace_back();
+	buttonsNew.emplace_back();
+	buttonsNew.emplace_back(); */
+	buttonsNew[0].get()->initaliseSprite("../Data/Images/Buttons/btn_start.png");
+	buttonsNew[1].get()->initaliseSprite("../Data/Images/Buttons/btn_quit.png");
+	buttonsNew[2].get()->initaliseSprite("../Data/Images/Buttons/btn_instructions.png");
+	buttonsNew[3].get()->initaliseSprite("../Data/Images/Buttons/btn_return.png");
+	buttonsNew[4].get()->initaliseSprite("../Data/Images/Buttons/btn_mainmenu.png");
+	buttonsNew[5].get()->initaliseSprite("../Data/Images/Buttons/btn_playagain.png");
+	buttonsNew[6].get()->initaliseSprite("../Data/Images/Buttons/btn_pause.png");
+
 	setAllBtnsVisible(false);
-	buttons[0].getSprite()->setPosition(40,
-		window.getSize().y - buttons[0].getSprite()->getGlobalBounds().height - 40);
-	buttons[1].getSprite()->setPosition(window.getSize().x - buttons[1].getSprite()->getGlobalBounds().width - 40,
-		window.getSize().y - buttons[1].getSprite()->getGlobalBounds().height - 40);
-	buttons[2].getSprite()->setPosition(window.getSize().x / 2 - buttons[2].getSprite()->getGlobalBounds().width / 2,
-		window.getSize().y - buttons[2].getSprite()->getGlobalBounds().height - 40);
-	buttons[3].getSprite()->setPosition(window.getSize().x / 2 - buttons[3].getSprite()->getGlobalBounds().width / 2, 40);
-	buttons[4].getSprite()->setPosition(window.getSize().x / 2 - buttons[4].getSprite()->getGlobalBounds().width / 2,
-		window.getSize().y - buttons[4].getSprite()->getGlobalBounds().height - 40);
-	buttons[5].getSprite()->setPosition(window.getSize().x / 2 - buttons[5].getSprite()->getGlobalBounds().width - 5,
-		window.getSize().y - buttons[5].getSprite()->getGlobalBounds().height - 40);
-	buttons[6].getSprite()->setScale(0.8,0.8);
-	buttons[6].getSprite()->setPosition(window.getSize().x - buttons[6].getSprite()->getGlobalBounds().width - 5, 5);
+	buttonsNew[0].get()->getSprite()->setPosition(40,
+		window.getSize().y - buttonsNew[0].get()->getSprite()->getGlobalBounds().height - 40);
+	buttonsNew[1].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[1].get()->getSprite()->getGlobalBounds().width - 40,
+		window.getSize().y - buttonsNew[1].get()->getSprite()->getGlobalBounds().height - 40);
+	buttonsNew[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().width / 2,
+		window.getSize().y - buttonsNew[2].get()->getSprite()->getGlobalBounds().height - 40);
+	buttonsNew[3].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[3].get()->getSprite()->getGlobalBounds().width / 2, 40);
+	buttonsNew[4].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[4].get()->getSprite()->getGlobalBounds().width / 2,
+		window.getSize().y - buttonsNew[4].get()->getSprite()->getGlobalBounds().height - 40);
+	buttonsNew[5].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[5].get()->getSprite()->getGlobalBounds().width - 5,
+		window.getSize().y - buttonsNew[5].get()->getSprite()->getGlobalBounds().height - 40);
+	buttonsNew[6].get()->getSprite()->setScale(0.8,0.8);
+	buttonsNew[6].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[6].get()->getSprite()->getGlobalBounds().width - 5, 5);
 	updateBtns(0,3);
 }
 
@@ -608,27 +621,27 @@ void Game::updateBtns(int start, int end)
 	setAllBtnsVisible(false);
 	for (int i = start; i < end; i++)
 	{
-		buttons[i].setVisible(true);
+		buttonsNew[i].get()->setVisible(true);
 	}
 	switch(current_state)
 	{
 		case MENU:
-			buttons[2].getSprite()->setPosition(window.getSize().x / 2 - buttons[2].getSprite()->getGlobalBounds().width / 2,
-			window.getSize().y - buttons[2].getSprite()->getGlobalBounds().height - 40);
+			buttonsNew[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().width / 2,
+			window.getSize().y - buttonsNew[2].get()->getSprite()->getGlobalBounds().height - 40);
 		break;
 		case GAMEPLAY:
-			buttons[2].getSprite()->setPosition(window.getSize().x / 2 - buttons[2].getSprite()->getGlobalBounds().width / 2,
-				window.getSize().y / 2 - buttons[2].getSprite()->getGlobalBounds().height / 2);
-			buttons[4].getSprite()->setPosition(window.getSize().x / 2 - buttons[4].getSprite()->getGlobalBounds().width / 2,
-				window.getSize().y - buttons[4].getSprite()->getGlobalBounds().height - 40);
-			buttons[3].getSprite()->setPosition(window.getSize().x / 2 - buttons[3].getSprite()->getGlobalBounds().width / 2, 40);
+			buttonsNew[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().width / 2,
+				window.getSize().y / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().height / 2);
+			buttonsNew[4].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[4].get()->getSprite()->getGlobalBounds().width / 2,
+				window.getSize().y - buttonsNew[4].get()->getSprite()->getGlobalBounds().height - 40);
+			buttonsNew[3].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[3].get()->getSprite()->getGlobalBounds().width / 2, 40);
 			break;
 		case END:
-			buttons[4].getSprite()->setPosition(window.getSize().x / 2 + 5,
-				window.getSize().y - buttons[4].getSprite()->getGlobalBounds().height - 40);
+			buttonsNew[4].get()->getSprite()->setPosition(window.getSize().x / 2 + 5,
+				window.getSize().y - buttonsNew[4].get()->getSprite()->getGlobalBounds().height - 40);
 			break;
 		case INSTRUCTIONS:
-			buttons[3].getSprite()->setPosition(10, window.getSize().y - buttons[3].getSprite()->getGlobalBounds().height - 10);
+			buttonsNew[3].get()->getSprite()->setPosition(10, window.getSize().y - buttonsNew[3].get()->getSprite()->getGlobalBounds().height - 10);
 			break;
 	}
 }
@@ -637,6 +650,7 @@ void Game::setAllBtnsVisible(bool value)
 {
 	for (int i = 0; i < 7; i++)
 	{
-		buttons[i].setVisible(value);
+		//buttons[i].setVisible(value);
+		buttonsNew[i].get()->setVisible(value);
 	}
 }

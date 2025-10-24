@@ -55,16 +55,20 @@ class Game
   sf::Text e_final_score_txt;
   sf::Text i_mouse_txt;
   sf::Text i_keyboard_txt;
+
   // Sprites
   sf::Sprite background;
   sf::Texture background_texture;
+  std::vector<std::string> btn_files;
   sf::RectangleShape pause_rect;
   sf::RectangleShape return_rect;
   GameObject accept_btn;
   GameObject reject_btn;
   GameObject reject_stamp;
   GameObject accept_stamp;
-  GameObject* buttons = new GameObject[7];
+  GameObject temp_btn;
+  //GameObject* buttons = new GameObject[7]; 
+  std::vector<std::shared_ptr<GameObject>> buttonsNew;
   sf::Sprite* character;
   sf::Sprite* passport;
   sf::Texture* animals = new sf::Texture[3];
