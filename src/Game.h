@@ -68,7 +68,7 @@ class Game
   GameObject accept_stamp;
   GameObject temp_btn;
   //GameObject* buttons = new GameObject[7]; 
-  std::vector<std::shared_ptr<GameObject>> buttonsNew;
+  std::vector<std::unique_ptr<GameObject>> buttonsNew;
   sf::Sprite* character;
   sf::Sprite* passport;
   sf::Texture* animals = new sf::Texture[3];

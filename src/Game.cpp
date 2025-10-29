@@ -20,8 +20,7 @@ Game::~Game()
 
 bool Game::init()
 {
-	// Creates the spaces for the pointers in the vector
-	buttonsNew.assign(7, std::make_shared<GameObject>());
+
 
 	current_state = MENU;
 
@@ -79,6 +78,7 @@ bool Game::init()
 	reject_stamp.initaliseSprite("../Data/Images/Critter Crossing Customs/reject.png");
 	accept_stamp.initaliseSprite("../Data/Images/Critter Crossing Customs/accept.png");
 	updateStampPos();
+	//std::cout << "Buttons Count 3: " << buttonsNew.size() << std::endl;
 
   return true;
 }
@@ -105,6 +105,7 @@ void Game::render()
 	switch (current_state)
 	{
 	case MENU:
+		//std::cout << "Buttons Count 4: " << buttonsNew.size() << std::endl;
 		//std::cout << "MENU STATE\n";
 		window.draw(m_title_txt);
 		window.draw(*buttonsNew[0].get()->getSprite());
@@ -583,21 +584,30 @@ void Game::loadPassports()
 
 void Game::loadButtons()
 {
-	//btn_files.insert("btn_pause.png");
-	/*
-	buttonsNew.emplace_back(temp_btn.initaliseSprite("../Data/Images/Buttons/btn_start.png"));
-	buttonsNew.emplace_back();
-	buttonsNew.emplace_back();
-	buttonsNew.emplace_back();
-	buttonsNew.emplace_back();
-	buttonsNew.emplace_back(); */
-	buttonsNew[0].get()->initaliseSprite("../Data/Images/Buttons/btn_start.png");
-	buttonsNew[1].get()->initaliseSprite("../Data/Images/Buttons/btn_quit.png");
-	buttonsNew[2].get()->initaliseSprite("../Data/Images/Buttons/btn_instructions.png");
-	buttonsNew[3].get()->initaliseSprite("../Data/Images/Buttons/btn_return.png");
-	buttonsNew[4].get()->initaliseSprite("../Data/Images/Buttons/btn_mainmenu.png");
-	buttonsNew[5].get()->initaliseSprite("../Data/Images/Buttons/btn_playagain.png");
-	buttonsNew[6].get()->initaliseSprite("../Data/Images/Buttons/btn_pause.png");
+	btn_files = { "../Data/Images/Buttons/btn_start.png","../Data/Images/Buttons/btn_quit.png",
+		"../Data/Images/Buttons/btn_instructions.png","../Data/Images/Buttons/btn_return.png",
+		"../Data/Images/Buttons/btn_mainmenu.png","../Data/Images/Buttons/btn_playagain.png",
+		"../Data/Images/Buttons/btn_pause.png" };
+
+	// Creates the spaces for the pointers in the vector
+	//buttonsNew.assign(7, std::make_shared<GameObject>());
+
+	//Assigns space in pointers to the amount of buttons there are
+	buttonsNew.reserve(btn_files.size());
+
+	//Loops through each path in the buttons and assigns it to button list.
+	for (const auto& path: btn_files)
+	{
+		auto btn_holder = std::make_unique<GameObject>();
+		if(!btn_holder->initaliseSprite(path))
+		{
+			std::cout << "Initalisation failed for path: " << path << std::endl;
+		}
+		buttonsNew.push_back(std::move(btn_holder));
+	}
+
+	//std::cout << "Buttons Count: " << buttonsNew.size() << std::endl;
+
 
 	setAllBtnsVisible(false);
 	buttonsNew[0].get()->getSprite()->setPosition(40,
@@ -614,6 +624,7 @@ void Game::loadButtons()
 	buttonsNew[6].get()->getSprite()->setScale(0.8,0.8);
 	buttonsNew[6].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[6].get()->getSprite()->getGlobalBounds().width - 5, 5);
 	updateBtns(0,3);
+	//std::cout << "Buttons Count 2: " << buttonsNew.size() << std::endl;
 }
 
 void Game::updateBtns(int start, int end)
