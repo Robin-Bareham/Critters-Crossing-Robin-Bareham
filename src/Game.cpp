@@ -42,7 +42,7 @@ bool Game::init()
 	i_keyboard_txt.setPosition(40,i_mouse_txt.getGlobalBounds().height + 40);
 	// GAME TEXT //
 	createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
-	g_lives_txt.setPosition(5, 5);
+	g_lives_txt.setPosition(610, 5);
 	createText(e_end_txt, "You got too many stamps incorrect.", 60, sf::Color::White);
 	// END SCREEN TEXT //
 	e_end_txt.setPosition(window.getSize().x/2 - e_end_txt.getGlobalBounds().width/2, 20);
@@ -51,15 +51,21 @@ bool Game::init()
 	
 	
 	// SPRITES //
-	if(!background_texture.loadFromFile("../Data/Images/WhackaMole Worksheet/background.png"))
+	if(!background_texture.loadFromFile("../Data/Images/CC_BG1.png"))
 	{
 		std::cout << "Gameplay BG didn't load.\n";
 	}
 	background.setTexture(background_texture);
+	if (!bg_person_texture.loadFromFile("../Data/Images/CC_BG2.png"))
+	{
+		std::cout << "Gameplay BG2 didn't load.\n";
+	}
+	bg_person.setTexture(bg_person_texture);
 	pause_rect.setSize({ 1080, 720 });
 	pause_rect.setFillColor(sf::Color(0, 0, 0, 150));
-	return_rect.setSize({1080/2,720/2});
-	return_rect.setFillColor(sf::Color(20, 33, 160));
+	info_rect.setSize({1080 - 600,110});
+	info_rect.setFillColor(sf::Color(58, 87, 86));
+	info_rect.setPosition(600,0);
 
 	character = new sf::Sprite;
 	passport = new sf::Sprite;
@@ -69,11 +75,15 @@ bool Game::init()
 	loadButtons();
 	// STAMPS n BUTTONS //
 	reject_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/reject button.png");
-	reject_btn.getSprite()->setPosition(window.getSize().x - reject_btn.getSprite()->getGlobalBounds().width - 20,
-		window.getSize().y - reject_btn.getSprite()->getGlobalBounds().height - 20);
 	accept_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/accept button.png");
-	accept_btn.getSprite()->setPosition(reject_btn.getSprite()->getPosition().x - accept_btn.getSprite()->getGlobalBounds().width - 40,
-		window.getSize().y - accept_btn.getSprite()->getGlobalBounds().height - 20);
+	reject_btn.getSprite()->setScale(0.7,0.7);
+	accept_btn.getSprite()->setScale(0.7,0.7);
+	accept_btn.getSprite()->setPosition(
+		bg_person.getGlobalBounds().width + 35,
+		info_rect.getPosition().y + info_rect.getGlobalBounds().height + 20);
+	reject_btn.getSprite()->setPosition(
+		accept_btn.getSprite()->getPosition().x + accept_btn.getSprite()->getGlobalBounds().width + 20,
+		info_rect.getPosition().y + info_rect.getGlobalBounds().height + 20);
 
 	reject_stamp.initaliseSprite("../Data/Images/Critter Crossing Customs/reject.png");
 	accept_stamp.initaliseSprite("../Data/Images/Critter Crossing Customs/accept.png");
@@ -115,7 +125,8 @@ void Game::render()
 	case GAMEPLAY:
 		//std::cout << "GAMEPLAY STATE\n";
 		window.draw(background);
-		window.draw(return_rect);
+		window.draw(bg_person);
+		window.draw(info_rect);
 		window.draw(*character);
 		window.draw(*passport);
 
@@ -131,6 +142,7 @@ void Game::render()
 			window.draw(*accept_stamp.getSprite());
 		}
 		window.draw(*buttonsNew[6].get()->getSprite());
+		window.draw(g_lives_txt);
 
 		if(paused)
 		{
@@ -140,7 +152,7 @@ void Game::render()
 			window.draw(*buttonsNew[3].get()->getSprite());
 			window.draw(*buttonsNew[4].get()->getSprite());
 		}
-		window.draw(g_lives_txt);
+		
 		break;
 	case END:
 		window.draw(e_end_txt);
@@ -194,7 +206,7 @@ void Game::mouseClicked(sf::Event event)
 			{
 				sf::Vector2i click = sf::Mouse::getPosition(window);
 				sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
-
+				//std::cout << click.x << " " << click.y << std::endl;
 				//If The click's location is within the passport
 				if (passport->getGlobalBounds().contains(clickf))
 				{
@@ -311,7 +323,7 @@ void Game::mouseReleased(sf::Event event)
 			{
 				sf::Vector2i click = sf::Mouse::getPosition(window);
 				sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
-				if (collisionReturnCheck(return_rect, clickf)) 
+				if (bg_person.getGlobalBounds().contains(clickf)) 
 				{
 					if(passport_accepted && should_accept || passport_rejected && !should_accept)
 					{
@@ -460,11 +472,13 @@ void Game::newAnimal()
 	}
 	character->setTexture(animals[animal_index], true);
 	character->setScale(1.8, 1.8);
-	character->setPosition(window.getSize().x / 4 - (character->getGlobalBounds().width/2), window.getSize().y / 4 - (character->getGlobalBounds().height / 2));
+	character->setPosition(bg_person.getGlobalBounds().width/2- (character->getGlobalBounds().width / 2), 
+		bg_person.getGlobalBounds().height / 2 - (character->getGlobalBounds().height / 2));
 
 	passport->setTexture(passports[passport_index], true);
 	passport->setScale(0.6, 0.6);
-	passport->setPosition(window.getSize().x - passport->getGlobalBounds().width*1.5, passport->getGlobalBounds().height/12);
+	passport->setPosition(bg_person.getGlobalBounds().width + passport->getGlobalBounds().width/2 - 50,
+		window.getSize().y - passport->getGlobalBounds().height - 20);
 	updateStampPos();
 }
 

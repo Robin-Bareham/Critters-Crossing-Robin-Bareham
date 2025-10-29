@@ -59,9 +59,11 @@ class Game
   // Sprites
   sf::Sprite background;
   sf::Texture background_texture;
+  sf::Sprite bg_person;
+  sf::Texture bg_person_texture;
   std::vector<std::string> btn_files;
   sf::RectangleShape pause_rect;
-  sf::RectangleShape return_rect;
+  sf::RectangleShape info_rect;
   GameObject accept_btn;
   GameObject reject_btn;
   GameObject reject_stamp;
