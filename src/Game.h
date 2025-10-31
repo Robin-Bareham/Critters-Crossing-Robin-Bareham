@@ -4,6 +4,8 @@
 
 #include <SFML/Graphics.hpp>
 #include "GameObject.h"
+#include "Animal.h"
+#include "Passport.h"
 
 class Game
 {
@@ -71,10 +73,12 @@ class Game
   GameObject temp_btn;
   //GameObject* buttons = new GameObject[7]; 
   std::vector<std::unique_ptr<GameObject>> buttonsNew;
-  sf::Sprite* character;
-  sf::Sprite* passport;
-  sf::Texture* animals = new sf::Texture[3];
-  sf::Texture* passports = new sf::Texture[3];
+  Animal character;
+  std::vector<sf::Texture> animals;
+  Passport passport;
+  std::vector<sf::Texture> passports;
+  //sf::Texture* animals = new sf::Texture[3];
+  //sf::Texture* passports = new sf::Texture[3];
   sf::Sprite* dragged = nullptr;
   sf::Sprite* passport_status = nullptr;
   sf::Vector2f drag_offset;

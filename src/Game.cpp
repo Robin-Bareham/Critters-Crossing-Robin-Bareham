@@ -10,18 +10,13 @@ Game::Game(sf::RenderWindow& game_window)
 
 Game::~Game()
 {
-	delete character;
-	delete passport;
-	delete[] animals;
-	delete[] passports;
-	//delete[] buttons;
+
 
 }
 
 bool Game::init()
 {
-
-
+	//buttonsNew.assign(7, std::make_shared<GameObject>());
 	current_state = MENU;
 
 	// TEXT //
@@ -67,11 +62,12 @@ bool Game::init()
 	info_rect.setFillColor(sf::Color(58, 87, 86));
 	info_rect.setPosition(600,0);
 
-	character = new sf::Sprite;
-	passport = new sf::Sprite;
+	//character = new sf::Sprite;
+	//passport = new sf::Sprite;
 	loadPaths();
-	newAnimal();
 	loadButtons();
+	newAnimal();
+	
 	// STAMPS n BUTTONS //
 	reject_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/reject button.png");
 	accept_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/accept button.png");
@@ -126,8 +122,8 @@ void Game::render()
 		window.draw(background);
 		window.draw(bg_person);
 		window.draw(info_rect);
-		window.draw(*character);
-		window.draw(*passport);
+		window.draw(*character.getSprite());
+		window.draw(*passport.getSprite());
 
 		window.draw(*accept_btn.getSprite());
 		window.draw(*reject_btn.getSprite());
@@ -207,9 +203,9 @@ void Game::mouseClicked(sf::Event event)
 				sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 				//std::cout << click.x << " " << click.y << std::endl;
 				//If The click's location is within the passport
-				if (passport->getGlobalBounds().contains(clickf))
+				if (passport.getSprite()->getGlobalBounds().contains(clickf))
 				{
-					dragged = passport;
+					dragged = passport.getSprite();
 					started_dragging = true;
 				}
 				else if (accept_btn.getSprite()->getGlobalBounds().contains(clickf))
@@ -469,15 +465,13 @@ void Game::newAnimal()
 	{
 		should_accept = false;
 	}
-	character->setTexture(animals[animal_index], true);
-	character->setScale(1.8, 1.8);
-	character->setPosition(bg_person.getGlobalBounds().width/2- (character->getGlobalBounds().width / 2), 
-		bg_person.getGlobalBounds().height / 2 - (character->getGlobalBounds().height / 2));
+	character.setNewTexture(animal_index);
+	character.getSprite()->setPosition(bg_person.getGlobalBounds().width / 2 - (character.getSprite()->getGlobalBounds().width / 2),
+		bg_person.getGlobalBounds().height / 2 - (character.getSprite()->getGlobalBounds().height / 2));
 
-	passport->setTexture(passports[passport_index], true);
-	passport->setScale(0.6, 0.6);
-	passport->setPosition(bg_person.getGlobalBounds().width + passport->getGlobalBounds().width/2 - 50,
-		window.getSize().y - passport->getGlobalBounds().height - 20);
+	passport.setNewTexture(passport_index);
+	passport.getSprite()->setPosition(bg_person.getGlobalBounds().width + passport.getSprite()->getGlobalBounds().width/2 - 50,
+		window.getSize().y - passport.getSprite()->getGlobalBounds().height - 20);
 	updateStampPos();
 }
 
@@ -557,10 +551,10 @@ void Game::changeText(sf::Text& text_name, std::string new_text, int temp_number
 
 void Game::updateStampPos()
 {
-	reject_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - reject_stamp.getSprite()->getGlobalBounds().width / 2,
-		passport->getPosition().y + passport->getGlobalBounds().height / 4 - reject_stamp.getSprite()->getGlobalBounds().height / 2);
-	accept_stamp.getSprite()->setPosition(passport->getPosition().x + passport->getGlobalBounds().width / 2 - accept_stamp.getSprite()->getGlobalBounds().width / 2,
-		passport->getPosition().y + passport->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
+	reject_stamp.getSprite()->setPosition(passport.getSprite()->getPosition().x + passport.getSprite()->getGlobalBounds().width / 2 - reject_stamp.getSprite()->getGlobalBounds().width / 2,
+		passport.getSprite()->getPosition().y + passport.getSprite()->getGlobalBounds().height / 4 - reject_stamp.getSprite()->getGlobalBounds().height / 2);
+	accept_stamp.getSprite()->setPosition(passport.getSprite()->getPosition().x + passport.getSprite()->getGlobalBounds().width / 2 - accept_stamp.getSprite()->getGlobalBounds().width / 2,
+		passport.getSprite()->getPosition().y + passport.getSprite()->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
 }
 
 void Game::loadPaths()
@@ -573,8 +567,16 @@ void Game::loadPaths()
 	"../Data/Images/Critter Crossing Customs/moose passport.png","../Data/Images/Critter Crossing Customs/penguin passport.png" };
 	animal_files = { "../Data/Images/Critter Crossing Customs/elephant.png",
 	"../Data/Images/Critter Crossing Customs/moose.png","../Data/Images/Critter Crossing Customs/penguin.png" };
+	
+	//Reserving memory space for the vector's size
+	passports.reserve(3);
+	animals.reserve(3);
+
 	for(int i = 0; i < 3; i++)
 	{
+		//Push back makes sure there's something in that space.
+		passports.push_back(sf::Texture());
+		animals.push_back(sf::Texture());
 		if(!passports[i].loadFromFile(passport_files[i]))
 		{
 			std::cout << passport_files[i] << " Didn't load\n";
@@ -584,6 +586,8 @@ void Game::loadPaths()
 			std::cout << animal_files[i] << " Didn't load\n";
 		}
 	}
+	character.setTextureList(animals);
+	passport.setTextureList(passports);
 }
 
 void Game::loadButtons()
