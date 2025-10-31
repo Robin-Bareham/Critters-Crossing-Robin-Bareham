@@ -69,8 +69,7 @@ bool Game::init()
 
 	character = new sf::Sprite;
 	passport = new sf::Sprite;
-	loadAnimals();
-	loadPassports();
+	loadPaths();
 	newAnimal();
 	loadButtons();
 	// STAMPS n BUTTONS //
@@ -182,7 +181,7 @@ void Game::mouseClicked(sf::Event event)
 			if(buttonsNew[0].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				current_state = GAMEPLAY;
-				updateBtns(2,5);
+				updateBtns();
 				resetGame();
 			}
 			//If quit button is pressed
@@ -195,7 +194,7 @@ void Game::mouseClicked(sf::Event event)
 			{
 				previous_state = current_state;
 				current_state = INSTRUCTIONS;
-				updateBtns(3,4);
+				updateBtns();
 			}
 		}
 		break;
@@ -249,14 +248,14 @@ void Game::mouseClicked(sf::Event event)
 				{
 					paused = false;
 					current_state = MENU;
-					updateBtns(0,3);
+					updateBtns();
 				}
 				//If instructions button is pressed
 				else if (buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					previous_state = current_state;
 					current_state = INSTRUCTIONS;
-					updateBtns(3, 4);
+					updateBtns();
 				}
 			}
 		}
@@ -271,13 +270,13 @@ void Game::mouseClicked(sf::Event event)
 			if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				current_state = MENU;
-				updateBtns(0, 3);
+				updateBtns();
 			}
 			//If instructions button is pressed
 			else if (buttonsNew[5].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				current_state = GAMEPLAY;
-				updateBtns(2, 5);
+				updateBtns();
 				resetGame();
 			}
 		}
@@ -294,12 +293,12 @@ void Game::mouseClicked(sf::Event event)
 				if(previous_state == GAMEPLAY)
 				{
 					current_state = GAMEPLAY;
-					updateBtns(2, 5);
+					updateBtns();
 				}
 				else if(previous_state == MENU)
 				{
 					current_state = MENU;
-					updateBtns(0, 3);
+					updateBtns();
 				}
 			}
 		}
@@ -338,7 +337,7 @@ void Game::mouseReleased(sf::Event event)
 						if(lives <= 0)
 						{
 							current_state = END;
-							updateBtns(4,6);
+							updateBtns();
 							changeText(e_final_score_txt, "Correct Stamps: ", passports_right);
 						}
 					}
@@ -363,7 +362,7 @@ void Game::keyPressed(sf::Event event)
 		if(event.key.code == sf::Keyboard::Enter)
 		{
 			current_state = GAMEPLAY;
-			updateBtns(2, 5);
+			updateBtns();
 			resetGame();
 		}
 		if(event.key.code == sf::Keyboard::Escape)
@@ -373,7 +372,7 @@ void Game::keyPressed(sf::Event event)
 		if (event.key.code == sf::Keyboard::I)
 		{
 			current_state = INSTRUCTIONS;
-			updateBtns(3,4);
+			updateBtns();
 		}
 		break;
 	case GAMEPLAY:
@@ -388,13 +387,13 @@ void Game::keyPressed(sf::Event event)
 			{
 				paused = false;
 				current_state = MENU;
-				updateBtns(0,3);
+				updateBtns();
 				break;
 			}
 			if (event.key.code == sf::Keyboard::I)
 			{
 				current_state = INSTRUCTIONS;
-				updateBtns(3, 4);
+				updateBtns();
 				break;
 			}
 		}
@@ -405,7 +404,7 @@ void Game::keyPressed(sf::Event event)
 		if(event.key.code == sf::Keyboard::Enter)
 		{
 			current_state = MENU;
-			updateBtns(0, 3);
+			updateBtns();
 		}
 		if (event.key.code == sf::Keyboard::R)
 		{
@@ -416,14 +415,14 @@ void Game::keyPressed(sf::Event event)
 		if (event.key.code == sf::Keyboard::Escape)
 		{
 			current_state = GAMEPLAY;
-			updateBtns(2,5);
+			updateBtns();
 			resetGame();
 			break;
 		}
 		if (event.key.code == sf::Keyboard::Enter)
 		{
 			current_state = MENU;
-			updateBtns(0, 3);
+			updateBtns();
 			break;
 		}
 		break;
@@ -434,12 +433,12 @@ void Game::keyPressed(sf::Event event)
 			if (previous_state == GAMEPLAY)
 			{
 				current_state = GAMEPLAY;
-				updateBtns(2, 5);
+				updateBtns();
 			}
 			else if (previous_state == MENU)
 			{
 				current_state = MENU;
-				updateBtns(0, 3);
+				updateBtns();
 			}
 		}
 		break;
@@ -564,44 +563,32 @@ void Game::updateStampPos()
 		passport->getPosition().y + passport->getGlobalBounds().height / 4 - accept_stamp.getSprite()->getGlobalBounds().height / 2);
 }
 
-void Game::loadAnimals()
+void Game::loadPaths()
 {
-	if(!animals[0].loadFromFile("../Data/Images/Critter Crossing Customs/elephant.png"))
+	btn_files = { "../Data/Images/Buttons/btn_start.png","../Data/Images/Buttons/btn_quit.png",
+	"../Data/Images/Buttons/btn_instructions.png","../Data/Images/Buttons/btn_return.png",
+	"../Data/Images/Buttons/btn_mainmenu.png","../Data/Images/Buttons/btn_playagain.png",
+	"../Data/Images/Buttons/btn_pause.png" };
+	passport_files = { "../Data/Images/Critter Crossing Customs/elephant passport.png",
+	"../Data/Images/Critter Crossing Customs/moose passport.png","../Data/Images/Critter Crossing Customs/penguin passport.png" };
+	animal_files = { "../Data/Images/Critter Crossing Customs/elephant.png",
+	"../Data/Images/Critter Crossing Customs/moose.png","../Data/Images/Critter Crossing Customs/penguin.png" };
+	for(int i = 0; i < 3; i++)
 	{
-		std::cout << "Elephant didn't load\n";
-	}
-	if (!animals[1].loadFromFile("../Data/Images/Critter Crossing Customs/moose.png"))
-	{
-		std::cout << "Moose didn't load\n";
-	}
-	if (!animals[2].loadFromFile("../Data/Images/Critter Crossing Customs/penguin.png"))
-	{
-		std::cout << "Penguin didn't load\n";
-	}
-}
-
-void Game::loadPassports()
-{
-	if (!passports[0].loadFromFile("../Data/Images/Critter Crossing Customs/elephant passport.png"))
-	{
-		std::cout << "Elephant Passport didn't load\n";
-	}
-	if (!passports[1].loadFromFile("../Data/Images/Critter Crossing Customs/moose passport.png"))
-	{
-		std::cout << "Moose Passport didn't load\n";
-	}
-	if (!passports[2].loadFromFile("../Data/Images/Critter Crossing Customs/penguin passport.png"))
-	{
-		std::cout << "Penguin Passport didn't load\n";
+		if(!passports[i].loadFromFile(passport_files[i]))
+		{
+			std::cout << passport_files[i] << " Didn't load\n";
+		}
+		if(!animals[i].loadFromFile(animal_files[i]))
+		{
+			std::cout << animal_files[i] << " Didn't load\n";
+		}
 	}
 }
 
 void Game::loadButtons()
 {
-	btn_files = { "../Data/Images/Buttons/btn_start.png","../Data/Images/Buttons/btn_quit.png",
-		"../Data/Images/Buttons/btn_instructions.png","../Data/Images/Buttons/btn_return.png",
-		"../Data/Images/Buttons/btn_mainmenu.png","../Data/Images/Buttons/btn_playagain.png",
-		"../Data/Images/Buttons/btn_pause.png" };
+
 
 	// Creates the spaces for the pointers in the vector
 	//buttonsNew.assign(7, std::make_shared<GameObject>());
@@ -620,10 +607,6 @@ void Game::loadButtons()
 		buttonsNew.push_back(std::move(btn_holder));
 	}
 
-	//std::cout << "Buttons Count: " << buttonsNew.size() << std::endl;
-
-
-	setAllBtnsVisible(false);
 	buttonsNew[0].get()->getSprite()->setPosition(40,
 		window.getSize().y - buttonsNew[0].get()->getSprite()->getGlobalBounds().height - 40);
 	buttonsNew[1].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[1].get()->getSprite()->getGlobalBounds().width - 40,
@@ -637,17 +620,12 @@ void Game::loadButtons()
 		window.getSize().y - buttonsNew[5].get()->getSprite()->getGlobalBounds().height - 40);
 	buttonsNew[6].get()->getSprite()->setScale(0.8,0.8);
 	buttonsNew[6].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[6].get()->getSprite()->getGlobalBounds().width - 5, 5);
-	updateBtns(0,3);
+	updateBtns();
 	//std::cout << "Buttons Count 2: " << buttonsNew.size() << std::endl;
 }
 
-void Game::updateBtns(int start, int end)
+void Game::updateBtns()
 {
-	setAllBtnsVisible(false);
-	for (int i = start; i < end; i++)
-	{
-		buttonsNew[i].get()->setVisible(true);
-	}
 	switch(current_state)
 	{
 		case MENU:
@@ -668,14 +646,5 @@ void Game::updateBtns(int start, int end)
 		case INSTRUCTIONS:
 			buttonsNew[3].get()->getSprite()->setPosition(10, window.getSize().y - buttonsNew[3].get()->getSprite()->getGlobalBounds().height - 10);
 			break;
-	}
-}
-
-void Game::setAllBtnsVisible(bool value)
-{
-	for (int i = 0; i < 7; i++)
-	{
-		//buttons[i].setVisible(value);
-		buttonsNew[i].get()->setVisible(value);
 	}
 }

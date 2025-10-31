@@ -21,14 +21,12 @@ class Game
  private:
 	 void createText(sf::Text& text_name, std::string text, int size, sf::Color colour);
 	 void changeText(sf::Text& text_name, std::string new_text, int temp_number);
-	 void loadAnimals();
-	 void loadPassports();
 	 void loadButtons();
+	 void loadPaths();
 	 void newAnimal();
 	 void dragSprite(sf::Sprite* sprite, sf::Sprite* stamp_sprite);
 	 void dragOffset(sf::Sprite* sprite);
-	 void updateBtns(int start, int end);
-	 void setAllBtnsVisible(bool state);
+	 void updateBtns();
 	 void updateStampPos();
 	 bool collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mouse);
 	 void resetGame();
@@ -62,6 +60,8 @@ class Game
   sf::Sprite bg_person;
   sf::Texture bg_person_texture;
   std::vector<std::string> btn_files;
+  std::vector<std::string> passport_files;
+  std::vector<std::string> animal_files;
   sf::RectangleShape pause_rect;
   sf::RectangleShape info_rect;
   GameObject accept_btn;
