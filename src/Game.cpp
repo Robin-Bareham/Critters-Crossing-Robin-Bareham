@@ -36,14 +36,18 @@ bool Game::init()
 		"\nI - Instructions", 40, sf::Color::White);
 	i_keyboard_txt.setPosition(40,i_mouse_txt.getGlobalBounds().height + 40);
 	// GAME TEXT //
-	createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
-	g_lives_txt.setPosition(610, 5);
-	createText(e_end_txt, "You got too many stamps incorrect.", 60, sf::Color::White);
+	//createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
+	//g_lives_txt.setPosition(610, 5);
+	createText(g_timer_txt, "0", 30, sf::Color::Magenta);
+	g_timer_txt.setPosition(610, 5);
+
 	// END SCREEN TEXT //
+	createText(e_end_txt, "Time's over.", 60, sf::Color::White);
 	e_end_txt.setPosition(window.getSize().x/2 - e_end_txt.getGlobalBounds().width/2, 20);
-	createText(e_final_score_txt, "Correct Stamps: 0", 100, sf::Color::White);
-	e_final_score_txt.setPosition(window.getSize().x / 2 - e_final_score_txt.getGlobalBounds().width / 2, window.getSize().y / 2 - e_final_score_txt.getGlobalBounds().height / 2);
-	
+	createText(e_final_correct_score_txt, "Correct Stamps: 0", 100, sf::Color::White);
+	e_final_correct_score_txt.setPosition(window.getSize().x / 2 - e_final_correct_score_txt.getGlobalBounds().width / 2, (window.getSize().y / 2 - e_final_correct_score_txt.getGlobalBounds().height) - 100);
+	createText(e_final_wrong_score_txt, "Incorrect Stamps: 0", 100, sf::Color::White);
+	e_final_wrong_score_txt.setPosition(window.getSize().x / 2 - e_final_wrong_score_txt.getGlobalBounds().width / 2, (window.getSize().y / 2 + 10) - 100);
 	
 	// SPRITES //
 	if(!background_texture.loadFromFile("../Data/Images/CC_BG1.png"))
@@ -95,6 +99,10 @@ void Game::update(float dt)
 	case MENU:
 		break;
 	case GAMEPLAY:
+		std::string temp_time = "";
+		if(game_time.getElapsedTime().asSeconds() < 1) {temp_time = "0";}
+		updateCycle();
+		changeText(g_timer_txt,temp_time, game_time.getElapsedTime().asSeconds());
 		if (started_dragging)
 		{
 			dragOffset(dragged);
@@ -137,7 +145,8 @@ void Game::render()
 			window.draw(*accept_stamp.getSprite());
 		}
 		window.draw(*buttonsNew[6].get()->getSprite());
-		window.draw(g_lives_txt);
+		//window.draw(g_lives_txt);
+		window.draw(g_timer_txt);
 
 		if(paused)
 		{
@@ -151,7 +160,8 @@ void Game::render()
 		break;
 	case END:
 		window.draw(e_end_txt);
-		window.draw(e_final_score_txt);
+		window.draw(e_final_correct_score_txt);
+		window.draw(e_final_wrong_score_txt);
 		window.draw(*buttonsNew[4].get()->getSprite());
 		window.draw(*buttonsNew[5].get()->getSprite());
 		break;
@@ -328,14 +338,14 @@ void Game::mouseReleased(sf::Event event)
 					else
 					{
 						passports_wrong += 1;
-						lives -= 1;
+						/*lives -= 1;
 						changeText(g_lives_txt,"Lives: ", lives);
 						if(lives <= 0)
 						{
 							current_state = END;
 							updateBtns();
 							changeText(e_final_score_txt, "Correct Stamps: ", passports_right);
-						}
+						}*/
 					}
 					newAnimal();
 				}
@@ -528,8 +538,9 @@ void Game::resetGame()
 	started_dragging = false;
 	passports_right = 0;
 	passports_wrong = 0;
-	lives = 3;
-	changeText(g_lives_txt, "Lives: ", lives);
+	//lives = 3;
+	//changeText(g_lives_txt, "Lives: ", lives);
+	game_time.restart();
 }
 
 void Game::createText(sf::Text& text_name, std::string text, int size, sf::Color colour)
@@ -650,5 +661,32 @@ void Game::updateBtns()
 		case INSTRUCTIONS:
 			buttonsNew[3].get()->getSprite()->setPosition(10, window.getSize().y - buttonsNew[3].get()->getSprite()->getGlobalBounds().height - 10);
 			break;
+	}
+}
+
+void Game::updateCycle()
+{
+	//Check the timer
+	//10 seconds for a section - Morning, Miday, Evening end.
+	if (game_time.getElapsedTime().asSeconds() < 5)
+	{
+		//std::cout << "MORNING\n";
+	}
+	else if (game_time.getElapsedTime().asSeconds() < 10)
+	{
+		//std::cout << "MIDAY\n";
+	}
+	else if (game_time.getElapsedTime().asSeconds() < 15)
+	{
+		//std::cout << "EVENING\n";
+	}
+	else
+	{
+		//std::cout << "END OF DAY.\n";
+		
+		current_state = END;
+		updateBtns();
+		changeText(e_final_correct_score_txt, "Correct Stamps: ", passports_right);
+		changeText(e_final_wrong_score_txt, "Incorrect Stamps: ", passports_wrong);
 	}
 }

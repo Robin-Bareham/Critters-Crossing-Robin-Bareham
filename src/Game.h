@@ -32,6 +32,7 @@ class Game
 	 void updateStampPos();
 	 bool collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mouse);
 	 void resetGame();
+	 void updateCycle();
 
   sf::RenderWindow& window;
   // Game States
@@ -45,14 +46,16 @@ class Game
   bool started_dragging = false;
   int passports_right = 0;
   int passports_wrong = 0;
-  int lives = 3;
+  //int lives = 3;
   // Text
   sf::Font font;
   sf::Text m_title_txt;
   sf::Text m_instructions_txt;
-  sf::Text g_lives_txt;
+  //sf::Text g_lives_txt;
+  sf::Text g_timer_txt;
   sf::Text e_end_txt;
-  sf::Text e_final_score_txt;
+  sf::Text e_final_correct_score_txt;
+  sf::Text e_final_wrong_score_txt;
   sf::Text i_mouse_txt;
   sf::Text i_keyboard_txt;
 
@@ -82,6 +85,7 @@ class Game
   sf::Sprite* dragged = nullptr;
   sf::Sprite* passport_status = nullptr;
   sf::Vector2f drag_offset;
+  sf::Clock game_time;
 };
 
 #endif // CRITTERSCROSSING_GAME_H
