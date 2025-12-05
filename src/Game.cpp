@@ -19,6 +19,14 @@ bool Game::init()
 	//buttonsNew.assign(7, std::make_shared<GameObject>());
 	current_state = MENU;
 
+	// AUDIO //
+	if (!incorrect_buffer.loadFromFile("../Data/Audio/incorrect.wav")) { std::cout << "Incorrect Audio failed to load\n"; }
+	incorrect_sound.setBuffer(incorrect_buffer);
+	if (!correct_buffer.loadFromFile("../Data/Audio/correct.wav")) { std::cout << "Correct Audio failed to load\n"; }
+	correct_sound.setBuffer(correct_buffer);
+	if (!click_buffer.loadFromFile("../Data/Audio/click.wav")) { std::cout << "Click Audio failed to load\n"; }
+	click_sound.setBuffer(click_buffer);
+
 	// TEXT //
 	if(!font.loadFromFile("../Data/Fonts/OpenSans-Bold.ttf"))
 	{
@@ -38,17 +46,19 @@ bool Game::init()
 	// GAME TEXT //
 	//createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
 	//g_lives_txt.setPosition(610, 5);
-	createText(g_timer_txt, "0", 30, sf::Color::Magenta);
+	createText(g_timer_txt, "", 30, sf::Color::Magenta);
 	g_timer_txt.setPosition(610, 5);
 
 	// END SCREEN TEXT //
 	createText(e_end_txt, "Time's over.", 60, sf::Color::White);
 	e_end_txt.setPosition(window.getSize().x/2 - e_end_txt.getGlobalBounds().width/2, 20);
-	createText(e_final_correct_score_txt, "Correct Stamps: 0", 100, sf::Color::White);
+	createText(e_final_correct_score_txt, "Correct Stamps: 0", 70, sf::Color::White);
 	e_final_correct_score_txt.setPosition(window.getSize().x / 2 - e_final_correct_score_txt.getGlobalBounds().width / 2, (window.getSize().y / 2 - e_final_correct_score_txt.getGlobalBounds().height) - 100);
-	createText(e_final_wrong_score_txt, "Incorrect Stamps: 0", 100, sf::Color::White);
+	createText(e_final_wrong_score_txt, "Incorrect Stamps: 0", 70, sf::Color::White);
 	e_final_wrong_score_txt.setPosition(window.getSize().x / 2 - e_final_wrong_score_txt.getGlobalBounds().width / 2, (window.getSize().y / 2 + 10) - 100);
-	
+	createText(e_money_earned_txt, "Money: 0", 70, sf::Color::White);
+	e_money_earned_txt.setPosition(window.getSize().x / 2 - e_money_earned_txt.getGlobalBounds().width / 2, window.getSize().y / 2 + e_money_earned_txt.getGlobalBounds().height- 80);
+
 	// SPRITES //
 	if(!background_texture.loadFromFile("../Data/Images/CC_BG1.png"))
 	{
@@ -99,6 +109,7 @@ void Game::update(float dt)
 	case MENU:
 		break;
 	case GAMEPLAY:
+		//Updates Timer
 		std::string temp_time = "";
 		if(game_time.getElapsedTime().asSeconds() < 1) {temp_time = "0";}
 		updateCycle();
@@ -162,6 +173,7 @@ void Game::render()
 		window.draw(e_end_txt);
 		window.draw(e_final_correct_score_txt);
 		window.draw(e_final_wrong_score_txt);
+		window.draw(e_money_earned_txt);
 		window.draw(*buttonsNew[4].get()->getSprite());
 		window.draw(*buttonsNew[5].get()->getSprite());
 		break;
@@ -175,6 +187,8 @@ void Game::render()
 
 void Game::mouseClicked(sf::Event event)
 {
+	bool button_clicked = false;
+	
 	switch(current_state)
 	{
 	case MENU:
@@ -186,18 +200,22 @@ void Game::mouseClicked(sf::Event event)
 			//If start button is pressed
 			if(buttonsNew[0].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
+				button_clicked = true;
 				current_state = GAMEPLAY;
 				updateBtns();
 				resetGame();
+				money_earned = 0;
 			}
 			//If quit button is pressed
 			else if(buttonsNew[1].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
+				button_clicked = true;
 				window.close();
 			}
 			//If instructions button is pressed
 			else if(buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
+				button_clicked = true;
 				previous_state = current_state;
 				current_state = INSTRUCTIONS;
 				updateBtns();
@@ -215,24 +233,38 @@ void Game::mouseClicked(sf::Event event)
 				//If The click's location is within the passport
 				if (passport.getSprite()->getGlobalBounds().contains(clickf))
 				{
+					button_clicked = true;
 					dragged = passport.getSprite();
 					started_dragging = true;
 				}
 				else if (accept_btn.getSprite()->getGlobalBounds().contains(clickf))
 				{
-					passport_accepted = true;
-					passport_rejected = false;
-					passport_status = accept_stamp.getSprite();
+					if (!option_chosen) 
+					{
+						button_clicked = true;
+						passport_accepted = true;
+						passport_rejected = false;
+						passport_status = accept_stamp.getSprite();
+						option_chosen = true;
+					}
+
 				}
 				else if (reject_btn.getSprite()->getGlobalBounds().contains(clickf))
 				{
-					passport_rejected = true;
-					passport_accepted = false;
-					passport_status = reject_stamp.getSprite();
+					if(!option_chosen)
+					{
+						button_clicked = true;
+						passport_rejected = true;
+						passport_accepted = false;
+						passport_status = reject_stamp.getSprite();
+						option_chosen = true;
+					}
+
 				}
 
 				if (buttonsNew[6].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
+					button_clicked = true;
 					paused = true;
 				}
 			}
@@ -247,11 +279,13 @@ void Game::mouseClicked(sf::Event event)
 				//If start button is pressed
 				if (buttonsNew[3].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
+					button_clicked = true;
 					paused = false;
 				}
 				//If quit button is pressed
 				else if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
+					button_clicked = true;
 					paused = false;
 					current_state = MENU;
 					updateBtns();
@@ -259,6 +293,7 @@ void Game::mouseClicked(sf::Event event)
 				//If instructions button is pressed
 				else if (buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
+					button_clicked = true;
 					previous_state = current_state;
 					current_state = INSTRUCTIONS;
 					updateBtns();
@@ -275,12 +310,14 @@ void Game::mouseClicked(sf::Event event)
 			//If quit button is pressed
 			if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
+				button_clicked = true;
 				current_state = MENU;
 				updateBtns();
 			}
 			//If instructions button is pressed
 			else if (buttonsNew[5].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
+				button_clicked = true;
 				current_state = GAMEPLAY;
 				updateBtns();
 				resetGame();
@@ -296,6 +333,7 @@ void Game::mouseClicked(sf::Event event)
 			//If quit button is pressed
 			if (buttonsNew[3].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
+				button_clicked = true;
 				if(previous_state == GAMEPLAY)
 				{
 					current_state = GAMEPLAY;
@@ -310,7 +348,10 @@ void Game::mouseClicked(sf::Event event)
 		}
 		break;
 	}
-  
+  if(button_clicked)
+  {
+	  click_sound.play();
+  }
  
 }
 void Game::mouseReleased(sf::Event event)
@@ -334,18 +375,12 @@ void Game::mouseReleased(sf::Event event)
 					{
 						//If it's accpeted when it should be or denied when it should be
 						passports_right += 1;
+						correct_sound.play();
 					}
 					else
 					{
 						passports_wrong += 1;
-						/*lives -= 1;
-						changeText(g_lives_txt,"Lives: ", lives);
-						if(lives <= 0)
-						{
-							current_state = END;
-							updateBtns();
-							changeText(e_final_score_txt, "Correct Stamps: ", passports_right);
-						}*/
+						incorrect_sound.play();
 					}
 					newAnimal();
 				}
@@ -370,6 +405,7 @@ void Game::keyPressed(sf::Event event)
 			current_state = GAMEPLAY;
 			updateBtns();
 			resetGame();
+			money_earned = 0;
 		}
 		if(event.key.code == sf::Keyboard::Escape)
 		{
@@ -452,9 +488,7 @@ void Game::keyPressed(sf::Event event)
 }
 void Game::keyReleased(sf::Event event)
 {
-
 }
-
 // Private Functions
 
 
@@ -462,6 +496,7 @@ void Game::newAnimal()
 {
 	passport_accepted = false;
 	passport_rejected = false;
+	option_chosen = false;
 	passport_status = nullptr;
 
 	int animal_index = rand() % 3;
@@ -532,15 +567,40 @@ bool Game::collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mou
 void Game::resetGame()
 {
 	paused = false;
-	passport_accepted = false;
-	passport_rejected = false;
-	should_accept = false;
 	started_dragging = false;
+	dragged = nullptr;
 	passports_right = 0;
 	passports_wrong = 0;
-	//lives = 3;
-	//changeText(g_lives_txt, "Lives: ", lives);
+	newAnimal();
 	game_time.restart();
+}
+
+void Game::updateCycle()
+{
+	//Check the timer
+	//10 seconds for a section - Morning, Miday, Evening end.
+	if (game_time.getElapsedTime().asSeconds() < 5)
+	{
+		//std::cout << "MORNING\n";
+	}
+	else if (game_time.getElapsedTime().asSeconds() < 10)
+	{
+		//std::cout << "MIDAY\n";
+	}
+	else if (game_time.getElapsedTime().asSeconds() < 15)
+	{
+		//std::cout << "EVENING\n";
+	}
+	else
+	{
+		//std::cout << "END OF DAY.\n";
+
+		current_state = END;
+		updateBtns();
+		calculateMoney();
+		changeText(e_final_correct_score_txt, "Correct Stamps: ", passports_right);
+		changeText(e_final_wrong_score_txt, "Incorrect Stamps: ", passports_wrong);
+	}
 }
 
 void Game::createText(sf::Text& text_name, std::string text, int size, sf::Color colour)
@@ -553,7 +613,7 @@ void Game::createText(sf::Text& text_name, std::string text, int size, sf::Color
 
 void Game::changeText(sf::Text& text_name, std::string new_text, int temp_number)
 {
-	if(temp_number != NULL)
+	if(temp_number != 9000)
 	{
 		new_text += std::to_string(temp_number);
 	}
@@ -664,29 +724,11 @@ void Game::updateBtns()
 	}
 }
 
-void Game::updateCycle()
+
+
+void Game::calculateMoney()
 {
-	//Check the timer
-	//10 seconds for a section - Morning, Miday, Evening end.
-	if (game_time.getElapsedTime().asSeconds() < 5)
-	{
-		//std::cout << "MORNING\n";
-	}
-	else if (game_time.getElapsedTime().asSeconds() < 10)
-	{
-		//std::cout << "MIDAY\n";
-	}
-	else if (game_time.getElapsedTime().asSeconds() < 15)
-	{
-		//std::cout << "EVENING\n";
-	}
-	else
-	{
-		//std::cout << "END OF DAY.\n";
-		
-		current_state = END;
-		updateBtns();
-		changeText(e_final_correct_score_txt, "Correct Stamps: ", passports_right);
-		changeText(e_final_wrong_score_txt, "Incorrect Stamps: ", passports_wrong);
-	}
+	money_earned += (passports_right * 5);
+	money_earned -= (passports_wrong * 2);
+	changeText(e_money_earned_txt, "Money: ", money_earned);
 }
