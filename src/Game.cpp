@@ -50,26 +50,25 @@ bool Game::init()
 	g_timer_txt.setPosition(610, 5);
 
 	// END SCREEN TEXT //
-	createText(e_end_txt, "Time's over.", 60, sf::Color::White);
-	e_end_txt.setPosition(window.getSize().x/2 - e_end_txt.getGlobalBounds().width/2, 20);
-	createText(e_final_correct_score_txt, "Correct Stamps: 0", 70, sf::Color::White);
-	e_final_correct_score_txt.setPosition(window.getSize().x / 2 - e_final_correct_score_txt.getGlobalBounds().width / 2, (window.getSize().y / 2 - e_final_correct_score_txt.getGlobalBounds().height) - 100);
-	createText(e_final_wrong_score_txt, "Incorrect Stamps: 0", 70, sf::Color::White);
-	e_final_wrong_score_txt.setPosition(window.getSize().x / 2 - e_final_wrong_score_txt.getGlobalBounds().width / 2, (window.getSize().y / 2 + 10) - 100);
-	createText(e_money_earned_txt, "Money: 0", 70, sf::Color::White);
-	e_money_earned_txt.setPosition(window.getSize().x / 2 - e_money_earned_txt.getGlobalBounds().width / 2, window.getSize().y / 2 + e_money_earned_txt.getGlobalBounds().height- 80);
+	createText(e_end_txt, "End of Day 1", 60, sf::Color::White);
+	e_end_txt.setPosition((window.getSize().x + 370) / 2 - e_end_txt.getGlobalBounds().width / 2, 20);
+	createText(e_money_earned_txt, "Money: £0", 60, sf::Color::White);
+	e_money_earned_txt.setPosition(10, 10);
+	createText(e_final_correct_score_txt, "Correct: 0", 50, sf::Color::White);
+	e_final_correct_score_txt.setPosition(10, e_money_earned_txt.getPosition().y + e_money_earned_txt.getGlobalBounds().height + 10);
+	createText(e_final_wrong_score_txt, "Incorrect: 0", 50, sf::Color::White);
+	e_final_wrong_score_txt.setPosition(10, e_final_correct_score_txt.getPosition().y + e_final_correct_score_txt.getGlobalBounds().height + 20);
+	createText(e_buy_txt, "Click on an object bellow to buy it.", 30, sf::Color::White);
+	e_buy_txt.setPosition((window.getSize().x + 370) / 2 - e_buy_txt.getGlobalBounds().width/2, 30 + e_end_txt.getGlobalBounds().height);
 
 	// SPRITES //
-	if(!background_texture.loadFromFile("../Data/Images/CC_BG1.png"))
-	{
-		std::cout << "Gameplay BG didn't load.\n";
-	}
+	if(!background_texture.loadFromFile("../Data/Images/CC_BG1.png")) { std::cout << "Gameplay BG didn't load.\n";	}
 	background.setTexture(background_texture);
-	if (!bg_person_texture.loadFromFile("../Data/Images/CC_BG2.png"))
-	{
-		std::cout << "Gameplay BG2 didn't load.\n";
-	}
+	if (!bg_person_texture.loadFromFile("../Data/Images/CC_BG2.png")) { std::cout << "Gameplay BG2 didn't load.\n"; }
 	bg_person.setTexture(bg_person_texture);
+	if(!bg_end_texture.loadFromFile("../Data/Images/CC_BG_END.png")) { std::cout << "End BG didn't load\n"; }
+	bg_end.setTexture(bg_end_texture);
+
 	pause_rect.setSize({ 1080, 720 });
 	pause_rect.setFillColor(sf::Color(0, 0, 0, 150));
 	info_rect.setSize({1080 - 600,110});
@@ -81,6 +80,31 @@ bool Game::init()
 	loadPaths();
 	loadButtons();
 	newAnimal();
+
+	//End text underneath Buttons
+	
+	float time_middle_pos = item_buttons[0].get()->getSprite()->getPosition().x + item_buttons[0].get()->getSprite()->getGlobalBounds().width / 2;
+	float money_middle_pos = item_buttons[1].get()->getSprite()->getPosition().x + item_buttons[1].get()->getSprite()->getGlobalBounds().width / 2;
+
+	//Time Increase Values
+	createText(e_time_txt, "^ Day Time", 30, sf::Color::White);
+	e_time_txt.setPosition(
+		time_middle_pos - e_time_txt.getGlobalBounds().width/2,
+		item_buttons[0].get()->getSprite()->getPosition().y + item_buttons[0].get()->getSprite()->getGlobalBounds().height  + 10);
+	createText(e_time_amount_txt, "Costs: £5", 30, sf::Color::White);
+	e_time_amount_txt.setPosition(
+		time_middle_pos - e_time_amount_txt.getGlobalBounds().width/2,
+		e_time_txt.getPosition().y + e_time_txt.getGlobalBounds().height + 10);
+	//Money Increase Values
+	createText(e_money_txt, "^ Money Gained", 30, sf::Color::White);
+	e_money_txt.setPosition(
+		money_middle_pos - e_money_txt.getGlobalBounds().width/2,
+		e_time_txt.getPosition().y);
+	createText(e_money_amount_txt, "Costs: £5", 30, sf::Color::White);
+	e_money_amount_txt.setPosition(
+		money_middle_pos - e_money_amount_txt.getGlobalBounds().width / 2,
+		e_time_amount_txt.getPosition().y);
+
 	
 	// STAMPS n BUTTONS //
 	reject_btn.initaliseSprite("../Data/Images/Critter Crossing Customs/reject button.png");
@@ -110,15 +134,20 @@ void Game::update(float dt)
 		break;
 	case GAMEPLAY:
 		//Updates Timer
-		std::string temp_time = "";
-		if(game_time.getElapsedTime().asSeconds() < 1) {temp_time = "0";}
-		updateCycle();
-		changeText(g_timer_txt,temp_time, game_time.getElapsedTime().asSeconds());
-		if (started_dragging)
+		if(!paused)
 		{
-			dragOffset(dragged);
+			std::string temp_time = "";
+			if (game_time.getElapsedTime().asSeconds() < 1) { temp_time = ""; }
+			updateCycle();
+			changeText(g_timer_txt, temp_time, game_time.getElapsedTime().asSeconds());
+			//Checks if it needs to drag the passport.
+			if (started_dragging)
+			{
+				dragOffset(dragged);
+			}
+			dragSprite(dragged, passport_status);
 		}
-		dragSprite(dragged, passport_status);
+
 		break;
 	}
 	
@@ -132,9 +161,9 @@ void Game::render()
 		//std::cout << "Buttons Count 4: " << buttonsNew.size() << std::endl;
 		//std::cout << "MENU STATE\n";
 		window.draw(m_title_txt);
-		window.draw(*buttonsNew[0].get()->getSprite());
-		window.draw(*buttonsNew[1].get()->getSprite());
-		window.draw(*buttonsNew[2].get()->getSprite());
+		window.draw(*buttons[0].get()->getSprite());
+		window.draw(*buttons[1].get()->getSprite());
+		window.draw(*buttons[2].get()->getSprite());
 		break;
 	case GAMEPLAY:
 		//std::cout << "GAMEPLAY STATE\n";
@@ -155,7 +184,7 @@ void Game::render()
 		{
 			window.draw(*accept_stamp.getSprite());
 		}
-		window.draw(*buttonsNew[6].get()->getSprite());
+		window.draw(*buttons[6].get()->getSprite());
 		//window.draw(g_lives_txt);
 		window.draw(g_timer_txt);
 
@@ -163,24 +192,32 @@ void Game::render()
 		{
 			window.draw(pause_rect);
 			//window.draw(p_pause_txt);
-			window.draw(*buttonsNew[2].get()->getSprite());
-			window.draw(*buttonsNew[3].get()->getSprite());
-			window.draw(*buttonsNew[4].get()->getSprite());
+			window.draw(*buttons[2].get()->getSprite());
+			window.draw(*buttons[3].get()->getSprite());
+			window.draw(*buttons[4].get()->getSprite());
 		}
 		
 		break;
 	case END:
+		window.draw(bg_end);
 		window.draw(e_end_txt);
+		window.draw(e_buy_txt);
 		window.draw(e_final_correct_score_txt);
 		window.draw(e_final_wrong_score_txt);
 		window.draw(e_money_earned_txt);
-		window.draw(*buttonsNew[4].get()->getSprite());
-		window.draw(*buttonsNew[5].get()->getSprite());
+		window.draw(e_money_txt);
+		window.draw(e_money_amount_txt);
+		window.draw(e_time_txt);
+		window.draw(e_time_amount_txt);
+		window.draw(*buttons[4].get()->getSprite());
+		window.draw(*buttons[5].get()->getSprite());
+		window.draw(*item_buttons[0].get()->getSprite());
+		window.draw(*item_buttons[1].get()->getSprite());
 		break;
 	case INSTRUCTIONS:
 		window.draw(i_mouse_txt);
 		window.draw(i_keyboard_txt);
-		window.draw(*buttonsNew[3].get()->getSprite());
+		window.draw(*buttons[3].get()->getSprite());
 		break;
 	} 
 }
@@ -198,22 +235,23 @@ void Game::mouseClicked(sf::Event event)
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 			
 			//If start button is pressed
-			if(buttonsNew[0].get()->getSprite()->getGlobalBounds().contains(clickf))
+			if(buttons[0].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				current_state = GAMEPLAY;
+				days = 1;
 				updateBtns();
 				resetGame();
 				money_earned = 0;
 			}
 			//If quit button is pressed
-			else if(buttonsNew[1].get()->getSprite()->getGlobalBounds().contains(clickf))
+			else if(buttons[1].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				window.close();
 			}
 			//If instructions button is pressed
-			else if(buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
+			else if(buttons[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				previous_state = current_state;
@@ -262,7 +300,7 @@ void Game::mouseClicked(sf::Event event)
 
 				}
 
-				if (buttonsNew[6].get()->getSprite()->getGlobalBounds().contains(clickf))
+				if (buttons[6].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					button_clicked = true;
 					paused = true;
@@ -277,13 +315,13 @@ void Game::mouseClicked(sf::Event event)
 				sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
 				//If start button is pressed
-				if (buttonsNew[3].get()->getSprite()->getGlobalBounds().contains(clickf))
+				if (buttons[3].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					button_clicked = true;
 					paused = false;
 				}
 				//If quit button is pressed
-				else if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
+				else if (buttons[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					button_clicked = true;
 					paused = false;
@@ -291,7 +329,7 @@ void Game::mouseClicked(sf::Event event)
 					updateBtns();
 				}
 				//If instructions button is pressed
-				else if (buttonsNew[2].get()->getSprite()->getGlobalBounds().contains(clickf))
+				else if (buttons[2].get()->getSprite()->getGlobalBounds().contains(clickf))
 				{
 					button_clicked = true;
 					previous_state = current_state;
@@ -308,19 +346,78 @@ void Game::mouseClicked(sf::Event event)
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
 			//If quit button is pressed
-			if (buttonsNew[4].get()->getSprite()->getGlobalBounds().contains(clickf))
+			if (buttons[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				current_state = MENU;
 				updateBtns();
 			}
 			//If instructions button is pressed
-			else if (buttonsNew[5].get()->getSprite()->getGlobalBounds().contains(clickf))
+			else if (buttons[5].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				current_state = GAMEPLAY;
+				days += 1;
 				updateBtns();
 				resetGame();
+			}
+			//If Timer Increase is pressed
+			else if(item_buttons[0].get()->getSprite()->getGlobalBounds().contains(clickf))
+			{
+				button_clicked = true;
+				//If the player has enough money
+				if(money_earned >= time_cost && can_upgrade_time)
+				{
+					float time_middle_pos = item_buttons[0].get()->getSprite()->getPosition().x + item_buttons[0].get()->getSprite()->getGlobalBounds().width / 2;
+					money_earned -= time_cost;
+					time_cost += 5;
+					day_timer += (1 * time_inflation);
+					time_inflation += 1;
+					changeText(e_money_earned_txt, "Money: £", money_earned);
+					if(time_inflation <5)
+					{
+						changeText(e_time_amount_txt, "Costs: £", time_cost);
+					}
+					else
+					{
+						changeText(e_time_amount_txt, "MAX UPGRADE", 9000);
+						can_upgrade_time = false;
+					}
+					
+					e_time_amount_txt.setPosition(
+						time_middle_pos - e_time_amount_txt.getGlobalBounds().width / 2,
+						e_time_txt.getPosition().y + e_time_txt.getGlobalBounds().height + 10);
+				}
+				
+
+			}
+			//If Money Increased is pressed
+			else if(item_buttons[1].get()->getSprite()->getGlobalBounds().contains(clickf))
+			{
+				button_clicked = true;
+				//If the player has enough money
+				if (money_earned >= money_cost && can_upgrade_money)
+				{
+					float money_middle_pos = item_buttons[1].get()->getSprite()->getPosition().x + item_buttons[1].get()->getSprite()->getGlobalBounds().width / 2;
+					money_earned -= money_cost;
+					money_cost += 5;
+					money_increase += (1 * money_inflation);
+					money_inflation += 0.5;
+					changeText(e_money_earned_txt, "Money: £", money_earned);
+					if(money_inflation < 10)
+					{
+						changeText(e_money_amount_txt, "Costs: £", money_cost);
+					}
+					else
+					{
+						changeText(e_money_amount_txt, "MAX UPGRADE", 9000);
+						can_upgrade_money = false;
+					}
+					e_money_amount_txt.setPosition(
+						money_middle_pos - e_money_amount_txt.getGlobalBounds().width / 2,
+						e_time_amount_txt.getPosition().y);
+			
+				}
 			}
 		}
 		break;
@@ -331,7 +428,7 @@ void Game::mouseClicked(sf::Event event)
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
 			//If quit button is pressed
-			if (buttonsNew[3].get()->getSprite()->getGlobalBounds().contains(clickf))
+			if (buttons[3].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				if(previous_state == GAMEPLAY)
@@ -403,6 +500,7 @@ void Game::keyPressed(sf::Event event)
 		if(event.key.code == sf::Keyboard::Enter)
 		{
 			current_state = GAMEPLAY;
+			days = 1;
 			updateBtns();
 			resetGame();
 			money_earned = 0;
@@ -457,6 +555,7 @@ void Game::keyPressed(sf::Event event)
 		if (event.key.code == sf::Keyboard::Escape)
 		{
 			current_state = GAMEPLAY;
+			days += 1;
 			updateBtns();
 			resetGame();
 			break;
@@ -489,8 +588,8 @@ void Game::keyPressed(sf::Event event)
 void Game::keyReleased(sf::Event event)
 {
 }
-// Private Functions
 
+// Private Functions
 
 void Game::newAnimal()
 {
@@ -579,17 +678,9 @@ void Game::updateCycle()
 {
 	//Check the timer
 	//10 seconds for a section - Morning, Miday, Evening end.
-	if (game_time.getElapsedTime().asSeconds() < 5)
+	if (game_time.getElapsedTime().asSeconds() < day_timer)
 	{
 		//std::cout << "MORNING\n";
-	}
-	else if (game_time.getElapsedTime().asSeconds() < 10)
-	{
-		//std::cout << "MIDAY\n";
-	}
-	else if (game_time.getElapsedTime().asSeconds() < 15)
-	{
-		//std::cout << "EVENING\n";
 	}
 	else
 	{
@@ -598,8 +689,9 @@ void Game::updateCycle()
 		current_state = END;
 		updateBtns();
 		calculateMoney();
-		changeText(e_final_correct_score_txt, "Correct Stamps: ", passports_right);
-		changeText(e_final_wrong_score_txt, "Incorrect Stamps: ", passports_wrong);
+		changeText(e_final_correct_score_txt, "Correct: ", passports_right);
+		changeText(e_final_wrong_score_txt, "Incorrect: ", passports_wrong);
+		changeText(e_end_txt, "End of Day ", days);
 	}
 }
 
@@ -634,6 +726,7 @@ void Game::loadPaths()
 	"../Data/Images/Buttons/btn_instructions.png","../Data/Images/Buttons/btn_return.png",
 	"../Data/Images/Buttons/btn_mainmenu.png","../Data/Images/Buttons/btn_playagain.png",
 	"../Data/Images/Buttons/btn_pause.png" };
+	btn_item_files = { "../Data/Images/CC_clock.png","../Data/Images/CC_Money.png" };
 	passport_files = { "../Data/Images/Critter Crossing Customs/elephant passport.png",
 	"../Data/Images/Critter Crossing Customs/moose passport.png","../Data/Images/Critter Crossing Customs/penguin passport.png" };
 	animal_files = { "../Data/Images/Critter Crossing Customs/elephant.png",
@@ -669,7 +762,7 @@ void Game::loadButtons()
 	//buttonsNew.assign(7, std::make_shared<GameObject>());
 
 	//Assigns space in pointers to the amount of buttons there are
-	buttonsNew.reserve(btn_files.size());
+	buttons.reserve(btn_files.size());
 
 	//Loops through each path in the buttons and assigns it to button list.
 	for (const auto& path: btn_files)
@@ -679,24 +772,42 @@ void Game::loadButtons()
 		{
 			std::cout << "Initalisation failed for path: " << path << std::endl;
 		}
-		buttonsNew.push_back(std::move(btn_holder));
+		buttons.push_back(std::move(btn_holder));
 	}
 
-	buttonsNew[0].get()->getSprite()->setPosition(40,
-		window.getSize().y - buttonsNew[0].get()->getSprite()->getGlobalBounds().height - 40);
-	buttonsNew[1].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[1].get()->getSprite()->getGlobalBounds().width - 40,
-		window.getSize().y - buttonsNew[1].get()->getSprite()->getGlobalBounds().height - 40);
-	buttonsNew[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().width / 2,
-		window.getSize().y - buttonsNew[2].get()->getSprite()->getGlobalBounds().height - 40);
-	buttonsNew[3].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[3].get()->getSprite()->getGlobalBounds().width / 2, 40);
-	buttonsNew[4].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[4].get()->getSprite()->getGlobalBounds().width / 2,
-		window.getSize().y - buttonsNew[4].get()->getSprite()->getGlobalBounds().height - 40);
-	buttonsNew[5].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[5].get()->getSprite()->getGlobalBounds().width - 5,
-		window.getSize().y - buttonsNew[5].get()->getSprite()->getGlobalBounds().height - 40);
-	buttonsNew[6].get()->getSprite()->setScale(0.8,0.8);
-	buttonsNew[6].get()->getSprite()->setPosition(window.getSize().x - buttonsNew[6].get()->getSprite()->getGlobalBounds().width - 5, 5);
+	buttons[0].get()->getSprite()->setPosition(40,
+		window.getSize().y - buttons[0].get()->getSprite()->getGlobalBounds().height - 40);
+	buttons[1].get()->getSprite()->setPosition(window.getSize().x - buttons[1].get()->getSprite()->getGlobalBounds().width - 40,
+		window.getSize().y - buttons[1].get()->getSprite()->getGlobalBounds().height - 40);
+	buttons[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[2].get()->getSprite()->getGlobalBounds().width / 2,
+		window.getSize().y - buttons[2].get()->getSprite()->getGlobalBounds().height - 40);
+	buttons[3].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[3].get()->getSprite()->getGlobalBounds().width / 2, 40);
+	buttons[4].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[4].get()->getSprite()->getGlobalBounds().width / 2,
+		window.getSize().y - buttons[4].get()->getSprite()->getGlobalBounds().height - 40);
+	buttons[5].get()->getSprite()->setPosition(30, window.getSize().y - (buttons[5].get()->getSprite()->getGlobalBounds().height * 2)-40);
+	buttons[6].get()->getSprite()->setScale(0.8,0.8);
+	buttons[6].get()->getSprite()->setPosition(window.getSize().x - buttons[6].get()->getSprite()->getGlobalBounds().width - 5, 5);
 	updateBtns();
 	//std::cout << "Buttons Count 2: " << buttonsNew.size() << std::endl;
+
+	item_buttons.reserve(btn_item_files.size());
+
+	for (const auto& path : btn_item_files) 
+	{
+		auto btn_holder = std::make_unique<GameObject>(); 
+		if (!btn_holder->initaliseSprite(path)) 
+		{
+			std::cout << "Initalisation failed for path: " << path << std::endl; 
+		}
+		item_buttons.push_back(std::move(btn_holder));
+	}
+
+	float es_middle = (window.getSize().x + 370) / 2;
+
+	item_buttons[0].get()->getSprite()->setPosition(es_middle - item_buttons[0].get()->getSprite()->getGlobalBounds().width - 50, 
+		e_buy_txt.getPosition().y + e_buy_txt.getGlobalBounds().height + 40);
+	item_buttons[1].get()->getSprite()->setPosition(es_middle + 50, 
+		e_buy_txt.getPosition().y + e_buy_txt.getGlobalBounds().height * 2);
 }
 
 void Game::updateBtns()
@@ -704,31 +815,28 @@ void Game::updateBtns()
 	switch(current_state)
 	{
 		case MENU:
-			buttonsNew[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().width / 2,
-			window.getSize().y - buttonsNew[2].get()->getSprite()->getGlobalBounds().height - 40);
+			buttons[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[2].get()->getSprite()->getGlobalBounds().width / 2,
+			window.getSize().y - buttons[2].get()->getSprite()->getGlobalBounds().height - 40);
 		break;
 		case GAMEPLAY:
-			buttonsNew[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().width / 2,
-				window.getSize().y / 2 - buttonsNew[2].get()->getSprite()->getGlobalBounds().height / 2);
-			buttonsNew[4].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[4].get()->getSprite()->getGlobalBounds().width / 2,
-				window.getSize().y - buttonsNew[4].get()->getSprite()->getGlobalBounds().height - 40);
-			buttonsNew[3].get()->getSprite()->setPosition(window.getSize().x / 2 - buttonsNew[3].get()->getSprite()->getGlobalBounds().width / 2, 40);
+			buttons[2].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[2].get()->getSprite()->getGlobalBounds().width / 2,
+				window.getSize().y / 2 - buttons[2].get()->getSprite()->getGlobalBounds().height / 2);
+			buttons[4].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[4].get()->getSprite()->getGlobalBounds().width / 2,
+				window.getSize().y - buttons[4].get()->getSprite()->getGlobalBounds().height - 40);
+			buttons[3].get()->getSprite()->setPosition(window.getSize().x / 2 - buttons[3].get()->getSprite()->getGlobalBounds().width / 2, 40);
 			break;
 		case END:
-			buttonsNew[4].get()->getSprite()->setPosition(window.getSize().x / 2 + 5,
-				window.getSize().y - buttonsNew[4].get()->getSprite()->getGlobalBounds().height - 40);
+			buttons[4].get()->getSprite()->setPosition(30, window.getSize().y - buttons[4].get()->getSprite()->getGlobalBounds().height - 20);
 			break;
 		case INSTRUCTIONS:
-			buttonsNew[3].get()->getSprite()->setPosition(10, window.getSize().y - buttonsNew[3].get()->getSprite()->getGlobalBounds().height - 10);
+			buttons[3].get()->getSprite()->setPosition(10, window.getSize().y - buttons[3].get()->getSprite()->getGlobalBounds().height - 10);
 			break;
 	}
 }
 
-
-
 void Game::calculateMoney()
 {
-	money_earned += (passports_right * 5);
-	money_earned -= (passports_wrong * 2);
-	changeText(e_money_earned_txt, "Money: ", money_earned);
+	money_earned += (passports_right * money_increase);
+	money_earned -= (passports_wrong * money_increase);
+	changeText(e_money_earned_txt, "Money: £", money_earned);
 }

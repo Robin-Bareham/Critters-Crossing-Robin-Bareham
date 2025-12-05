@@ -42,6 +42,16 @@ class Game
   game_state current_state;
   game_state previous_state;
   bool paused = false;
+  float money_earned = 0;
+  int days = 1;
+  int day_timer = 5;
+  int money_increase = 1;
+  int money_cost = 5;
+  int time_cost = 5;
+  int time_inflation = 1;
+  int money_inflation = 1;
+  bool can_upgrade_time = true;
+  bool can_upgrade_money = true;
   // Passport States
   bool passport_accepted = false;
   bool passport_rejected = false;
@@ -50,7 +60,7 @@ class Game
   bool option_chosen = false;
   int passports_right = 0;
   int passports_wrong = 0;
-  float money_earned = 0;
+  
   //int lives = 3;
   
   // Audio
@@ -74,26 +84,40 @@ class Game
   sf::Text e_final_correct_score_txt;
   sf::Text e_final_wrong_score_txt;
   sf::Text e_money_earned_txt;
+  sf::Text e_buy_txt;
+  sf::Text e_time_txt;
+  sf::Text e_money_txt;
+  sf::Text e_time_amount_txt;
+  sf::Text e_money_amount_txt;
   sf::Text i_mouse_txt;
   sf::Text i_keyboard_txt;
 
-  // Sprites
+  // Sprites 
+  //Background
   sf::Sprite background;
   sf::Texture background_texture;
   sf::Sprite bg_person;
   sf::Texture bg_person_texture;
+  sf::Sprite bg_end;
+  sf::Texture bg_end_texture;
+  //Image Files
   std::vector<std::string> btn_files;
+  std::vector<std::string> btn_item_files;
   std::vector<std::string> passport_files;
   std::vector<std::string> animal_files;
+  //Rectangles
   sf::RectangleShape pause_rect;
   sf::RectangleShape info_rect;
+  //Button Stamps
   GameObject accept_btn;
   GameObject reject_btn;
   GameObject reject_stamp;
   GameObject accept_stamp;
-  GameObject temp_btn;
+  //GameObject temp_btn;
   //GameObject* buttons = new GameObject[7]; 
-  std::vector<std::unique_ptr<GameObject>> buttonsNew;
+  //Button Lists
+  std::vector<std::unique_ptr<GameObject>> buttons;
+  std::vector<std::unique_ptr<GameObject>> item_buttons;
   Animal character;
   std::vector<sf::Texture> animals;
   Passport passport;
