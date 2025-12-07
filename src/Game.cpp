@@ -35,6 +35,12 @@ bool Game::init()
 	// MENU TEXT //
 	createText(m_title_txt, "Critter's Crossing", 100, sf::Color::White);
 	m_title_txt.setPosition(window.getSize().x/2-m_title_txt.getGlobalBounds().width/2, 20);
+	createText(m_highscore_txt, "Current Highscore: 0", 60, sf::Color::White);
+	m_highscore_txt.setPosition(window.getSize().x/2-m_highscore_txt.getGlobalBounds().width/2,m_title_txt.getPosition().y + m_title_txt.getGlobalBounds().height + 20);
+	createText(m_instructions_txt, "   Get as much money as possible within 10 days.\nUpgrade to increase day cycles and money gained.\n         You lose money for incorrect stamps.", 40, sf::Color::White);
+	m_instructions_txt.setPosition(window.getSize().x/2-m_instructions_txt.getGlobalBounds().width/2, 
+		m_highscore_txt.getPosition().y + m_highscore_txt.getGlobalBounds().height + 20);
+	
 	// Instructions TEXT //
 	createText(i_mouse_txt, "Click and drag passports with the mouse \n                into the blue box upon \n               accepting or rejecting it.",50,sf::Color::White);
 	i_mouse_txt.setPosition(40,0);  
@@ -44,8 +50,6 @@ bool Game::init()
 		"\nI - Instructions", 40, sf::Color::White);
 	i_keyboard_txt.setPosition(40,i_mouse_txt.getGlobalBounds().height + 40);
 	// GAME TEXT //
-	//createText(g_lives_txt, "Lives: 3", 30, sf::Color::Red);
-	//g_lives_txt.setPosition(610, 5);
 	createText(g_timer_txt, "", 30, sf::Color::Magenta);
 	g_timer_txt.setPosition(610, 5);
 
@@ -139,7 +143,7 @@ void Game::update(float dt)
 			std::string temp_time = "";
 			if (game_time.getElapsedTime().asSeconds() < 1) { temp_time = ""; }
 			updateCycle();
-			changeText(g_timer_txt, temp_time, game_time.getElapsedTime().asSeconds());
+			changeText(g_timer_txt, temp_time, (game_time.getElapsedTime().asSeconds()-pause_delay));
 			//Checks if it needs to drag the passport.
 			if (started_dragging)
 			{
@@ -147,7 +151,6 @@ void Game::update(float dt)
 			}
 			dragSprite(dragged, passport_status);
 		}
-
 		break;
 	}
 	
@@ -161,6 +164,8 @@ void Game::render()
 		//std::cout << "Buttons Count 4: " << buttonsNew.size() << std::endl;
 		//std::cout << "MENU STATE\n";
 		window.draw(m_title_txt);
+		window.draw(m_highscore_txt);
+		window.draw(m_instructions_txt);
 		window.draw(*buttons[0].get()->getSprite());
 		window.draw(*buttons[1].get()->getSprite());
 		window.draw(*buttons[2].get()->getSprite());
@@ -219,6 +224,11 @@ void Game::render()
 		window.draw(i_keyboard_txt);
 		window.draw(*buttons[3].get()->getSprite());
 		break;
+	case GAMEOVER:
+		window.draw(e_money_earned_txt);
+		window.draw(m_highscore_txt);
+		window.draw(*buttons[4].get()->getSprite());
+			break;
 	} 
 }
 
@@ -304,6 +314,8 @@ void Game::mouseClicked(sf::Event event)
 				{
 					button_clicked = true;
 					paused = true;
+					//Gets the time it left off on.
+					pause_delay = game_time.getElapsedTime().asSeconds() - pause_delay;
 				}
 			}
 		}
@@ -319,6 +331,7 @@ void Game::mouseClicked(sf::Event event)
 				{
 					button_clicked = true;
 					paused = false;
+					pause_delay = game_time.getElapsedTime().asSeconds() - pause_delay;
 				}
 				//If quit button is pressed
 				else if (buttons[4].get()->getSprite()->getGlobalBounds().contains(clickf))
@@ -340,26 +353,26 @@ void Game::mouseClicked(sf::Event event)
 		}
 		break;
 	case END:
-		if (event.mouseButton.button == sf::Mouse::Left)
+		if (event.mouseButton.button == sf::Mouse::Left && activate_buying)
 		{
 			sf::Vector2i click = sf::Mouse::getPosition(window);
 			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
 
-			//If quit button is pressed
+			//If main menu button is pressed
 			if (buttons[4].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				current_state = MENU;
 				updateBtns();
 			}
-			//If instructions button is pressed
+			//If play again button is pressed
 			else if (buttons[5].get()->getSprite()->getGlobalBounds().contains(clickf))
 			{
 				button_clicked = true;
 				current_state = GAMEPLAY;
 				days += 1;
 				updateBtns();
-				resetGame();
+				resetLoop();
 			}
 			//If Timer Increase is pressed
 			else if(item_buttons[0].get()->getSprite()->getGlobalBounds().contains(clickf))
@@ -387,6 +400,8 @@ void Game::mouseClicked(sf::Event event)
 					e_time_amount_txt.setPosition(
 						time_middle_pos - e_time_amount_txt.getGlobalBounds().width / 2,
 						e_time_txt.getPosition().y + e_time_txt.getGlobalBounds().height + 10);
+					
+
 				}
 				
 
@@ -402,9 +417,9 @@ void Game::mouseClicked(sf::Event event)
 					money_earned -= money_cost;
 					money_cost += 5;
 					money_increase += (1 * money_inflation);
-					money_inflation += 0.5;
+					money_inflation += 0.7;
 					changeText(e_money_earned_txt, "Money: £", money_earned);
-					if(money_inflation < 10)
+					if(money_inflation < 5)
 					{
 						changeText(e_money_amount_txt, "Costs: £", money_cost);
 					}
@@ -416,10 +431,11 @@ void Game::mouseClicked(sf::Event event)
 					e_money_amount_txt.setPosition(
 						money_middle_pos - e_money_amount_txt.getGlobalBounds().width / 2,
 						e_time_amount_txt.getPosition().y);
-			
+					
 				}
 			}
 		}
+		activate_buying = true;
 		break;
 	case INSTRUCTIONS:
 		if (event.mouseButton.button == sf::Mouse::Left)
@@ -441,6 +457,21 @@ void Game::mouseClicked(sf::Event event)
 					current_state = MENU;
 					updateBtns();
 				}
+			}
+		}
+		break;
+	case GAMEOVER:
+		if (event.mouseButton.button == sf::Mouse::Left) 
+		{
+			sf::Vector2i click = sf::Mouse::getPosition(window);
+			sf::Vector2f clickf = static_cast<sf::Vector2f>(click);
+
+			//If quit button is pressed
+			if (buttons[4].get()->getSprite()->getGlobalBounds().contains(clickf))
+			{
+				button_clicked = true;
+				current_state = MENU;
+				updateBtns();
 			}
 		}
 		break;
@@ -521,6 +552,7 @@ void Game::keyPressed(sf::Event event)
 			if(event.key.code == sf::Keyboard::Escape)
 			{
 				paused = false;
+				pause_delay = game_time.getElapsedTime().asSeconds() - pause_delay;
 				break;
 			}
 			if (event.key.code == sf::Keyboard::Enter)
@@ -540,6 +572,7 @@ void Game::keyPressed(sf::Event event)
 		if (event.key.code == sf::Keyboard::Escape)
 		{
 			paused = true;
+			pause_delay = game_time.getElapsedTime().asSeconds() - pause_delay;
 		}
 		if(event.key.code == sf::Keyboard::Enter)
 		{
@@ -557,7 +590,7 @@ void Game::keyPressed(sf::Event event)
 			current_state = GAMEPLAY;
 			days += 1;
 			updateBtns();
-			resetGame();
+			resetLoop();
 			break;
 		}
 		if (event.key.code == sf::Keyboard::Enter)
@@ -666,6 +699,32 @@ bool Game::collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mou
 void Game::resetGame()
 {
 	paused = false;
+	pause_delay = 0;
+	money_earned = 0;
+	started_dragging = false;
+	dragged = nullptr;
+	passports_right = 0;
+	passports_wrong = 0;
+	newAnimal();
+	game_time.restart();
+	days = 1;
+	day_timer = 5;
+	money_increase = 1;
+	money_cost = 5;
+	time_cost = 5;
+	time_inflation = 1;
+	money_inflation = 1;
+	can_upgrade_time = true;
+	can_upgrade_money = true;
+	changeText(e_time_amount_txt, "Costs: £5", 9000);
+	changeText(e_money_amount_txt, "Costs: £5", 9000);
+	e_money_earned_txt.setPosition(10, 10);
+}
+
+void Game::resetLoop()
+{
+	paused = false;
+	pause_delay = 0;
 	started_dragging = false;
 	dragged = nullptr;
 	passports_right = 0;
@@ -678,7 +737,7 @@ void Game::updateCycle()
 {
 	//Check the timer
 	//10 seconds for a section - Morning, Miday, Evening end.
-	if (game_time.getElapsedTime().asSeconds() < day_timer)
+	if (game_time.getElapsedTime().asSeconds() - pause_delay < day_timer)
 	{
 		//std::cout << "MORNING\n";
 	}
@@ -687,11 +746,24 @@ void Game::updateCycle()
 		//std::cout << "END OF DAY.\n";
 
 		current_state = END;
+		activate_buying = false;
 		updateBtns();
 		calculateMoney();
 		changeText(e_final_correct_score_txt, "Correct: ", passports_right);
 		changeText(e_final_wrong_score_txt, "Incorrect: ", passports_wrong);
 		changeText(e_end_txt, "End of Day ", days);
+		if (days >= 10)
+		{
+			if(money_earned > money_highscore)
+			{
+				money_highscore = money_earned;
+				changeText(m_highscore_txt, "Current Highscore: ", money_highscore);
+				m_highscore_txt.setPosition(window.getSize().x / 2 - m_highscore_txt.getGlobalBounds().width / 2, m_highscore_txt.getPosition().y);
+			}
+
+			current_state = GAMEOVER;
+			e_money_earned_txt.setPosition(window.getSize().x/2 - e_money_amount_txt.getGlobalBounds().width/2, m_highscore_txt.getPosition().y + m_highscore_txt.getGlobalBounds().height + 20);
+		}
 	}
 }
 
@@ -839,4 +911,5 @@ void Game::calculateMoney()
 	money_earned += (passports_right * money_increase);
 	money_earned -= (passports_wrong * money_increase);
 	changeText(e_money_earned_txt, "Money: £", money_earned);
+	e_money_earned_txt.setPosition(10, 10);
 }

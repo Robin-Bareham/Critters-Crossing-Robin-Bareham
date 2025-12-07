@@ -33,25 +33,29 @@ class Game
 	 void updateStampPos();
 	 bool collisionReturnCheck(sf::RectangleShape& rectangle, sf::Vector2f& mouse);
 	 void resetGame();
+	 void resetLoop();
 	 void updateCycle();
 	 void calculateMoney();
 
   sf::RenderWindow& window;
   // Game States
-  enum game_state {MENU,GAMEPLAY,END,INSTRUCTIONS};
+  enum game_state {MENU,GAMEPLAY,END,INSTRUCTIONS,GAMEOVER};
   game_state current_state;
   game_state previous_state;
+  bool activate_buying = true;
   bool paused = false;
   float money_earned = 0;
   int days = 1;
   int day_timer = 5;
+  int pause_delay = 0;
   int money_increase = 1;
   int money_cost = 5;
   int time_cost = 5;
   int time_inflation = 1;
-  int money_inflation = 1;
+  float money_inflation = 1;
   bool can_upgrade_time = true;
   bool can_upgrade_money = true;
+  int money_highscore = 0;
   // Passport States
   bool passport_accepted = false;
   bool passport_rejected = false;
@@ -78,6 +82,7 @@ class Game
   sf::Font font;
   sf::Text m_title_txt;
   sf::Text m_instructions_txt;
+  sf::Text m_highscore_txt;
   //sf::Text g_lives_txt;
   sf::Text g_timer_txt;
   sf::Text e_end_txt;
@@ -91,6 +96,8 @@ class Game
   sf::Text e_money_amount_txt;
   sf::Text i_mouse_txt;
   sf::Text i_keyboard_txt;
+ 
+  
 
   // Sprites 
   //Background
